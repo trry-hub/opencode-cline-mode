@@ -20,12 +20,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/trry/opencode-cline-mode.git"
+    "url": "https://github.com/trry-hub/opencode-cline-mode.git"
   },
   "bugs": {
-    "url": "https://github.com/trry/opencode-cline-mode/issues"
+    "url": "https://github.com/trry-hub/opencode-cline-mode/issues"
   },
-  "homepage": "https://github.com/trry/opencode-cline-mode#readme",
+  "homepage": "https://github.com/trry-hub/opencode-cline-mode#readme",
   "dependencies": {
     "@opencode-ai/plugin": "^1.1.53"
   },

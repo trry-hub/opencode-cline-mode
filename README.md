@@ -36,7 +36,7 @@ Then add to your OpenCode config:
 Clone this repository and symlink to your OpenCode plugins directory:
 
 ```bash
-git clone https://github.com/trry/opencode-cline-mode.git
+git clone https://github.com/trry-hub/opencode-cline-mode.git
 ln -s $(pwd)/opencode-cline-mode ~/.config/opencode/plugins/opencode-cline-mode
 ```
 
@@ -164,12 +164,12 @@ MIT © [trry](https://github.com/trry)
 
 ## 🐛 Issues
 
-Found a bug? Have a feature request? Please [open an issue](https://github.com/trry/opencode-cline-mode/issues).
+Found a bug? Have a feature request? Please [open an issue](https://github.com/trry-hub/opencode-cline-mode/issues).
 
 ## 📮 Contact
 
 - GitHub: [@trry](https://github.com/trry)
-- Issues: [GitHub Issues](https://github.com/trry/opencode-cline-mode/issues)
+- Issues: [GitHub Issues](https://github.com/trry-hub/opencode-cline-mode/issues)
 
 ---
 
