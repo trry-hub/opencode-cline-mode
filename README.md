@@ -11,9 +11,10 @@ A plugin for [OpenCode](https://opencode.ai) that brings Cline-style structured 
 
 - 🎯 **Plan Mode** - Analyze and create detailed implementation plans without making changes
 - ⚡ **Act Mode** - Execute approved plans step by step with progress tracking
-- 🔄 **Session Management** - Seamlessly switch between modes within a session
+- 🔄 **Clean Agent List** - Only shows `cline-plan` and `cline-act`, removes default agents
 - 📝 **Structured Output** - Clear, actionable plans with risk assessment and verification steps
 - 🚀 **Zero Config** - Works out of the box with sensible defaults
+- 🎨 **Similar to oh-my-opencode** - Replaces default agents for a focused workflow
 
 ## 📦 Installation
 
@@ -82,8 +83,66 @@ In act mode, the AI will:
 
 In the OpenCode TUI:
 1. Press `Tab` to see available agents
-2. Select `cline-plan` or `cline-act`
-3. Start a new conversation in that mode
+2. You will **only** see:
+   - `cline-plan` - Planning mode
+   - `cline-act` - Execution mode
+3. Select the agent you want to use
+4. Start a new conversation in that mode
+
+**Note**: This plugin **replaces** OpenCode's default agents (plan, build, etc.) to provide a focused Cline-style workflow. If you want to use default agents alongside Cline agents, see [Configuration](#configuration) below.
+
+---
+
+## ⚙️ Configuration
+
+### Optional Configuration File
+
+Create `~/.config/opencode/opencode-cline-mode.json` or `.opencode/opencode-cline-mode.json` in your project:
+
+```json
+{
+  "replace_default_agents": true,
+  "default_agent": "cline-plan",
+  "plan_model": null,
+  "act_model": null
+}
+```
+
+#### Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `replace_default_agents` | boolean | `true` | If `true`, removes OpenCode's default agents. If `false`, adds Cline agents alongside defaults. |
+| `default_agent` | string | `"cline-plan"` | Which agent to use by default (`"cline-plan"` or `"cline-act"`) |
+| `plan_model` | string | `null` | Model for cline-plan agent. If `null`, uses default model from `opencode.json` |
+| `act_model` | string | `null` | Model for cline-act agent. If `null`, uses default model from `opencode.json` |
+
+#### Example: Keep Default Agents
+
+If you want to use Cline agents **alongside** OpenCode's default agents:
+
+```json
+{
+  "replace_default_agents": false
+}
+```
+
+Then you'll see all agents when pressing `Tab`:
+- `cline-plan`
+- `cline-act`
+- `plan` (OpenCode default)
+- `build` (OpenCode default)
+- etc.
+
+#### Example: Use Different Models
+
+```json
+{
+  "replace_default_agents": true,
+  "plan_model": "anthropic/claude-opus-4",
+  "act_model": "anthropic/claude-sonnet-4"
+}
+```
 
 ## 📖 Example Workflow
 
