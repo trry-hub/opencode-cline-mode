@@ -69,17 +69,16 @@ fi
 
 echo ""
 
-# 5. 显示命令列表
-echo "5️⃣  可用命令:"
-echo "   • /cline-plan  - 进入计划模式"
-echo "   • /cline-act   - 进入执行模式"
-echo "   • /execute     - 进入执行模式 (别名)"
-echo "   • /cline-exit  - 退出 Cline 模式"
+# 5. 显示可用 agents
+echo "5️⃣  注册的 Agents:"
+echo "   • cline-plan  - 计划模式 (只分析，不修改代码)"
+echo "   • cline-act   - 执行模式 (可修改代码和执行命令)"
 
 echo ""
 echo "✅ 插件检查完成！"
 echo ""
 echo "📚 下一步:"
-echo "   1. 阅读测试指南: cat TESTING.md"
-echo "   2. 运行完整测试: bash test-plugin.sh"
-echo "   3. 或直接启动 OpenCode 测试: opencode"
+echo "   1. 阅读测试指南: cat HOW-TO-TEST.md"
+echo "   2. 测试 Plan Agent: opencode --agent cline-plan"
+echo "   3. 测试 Act Agent: opencode --agent cline-act"
+echo "   4. 或在 TUI 中按 Tab 切换 agent"
