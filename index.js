@@ -7,11 +7,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /**
  * OpenCode Cline Mode Plugin
  * 
- * Provides Cline-style plan and act workflow for OpenCode.
- * 
- * Commands:
- * - /cline-plan - Enter plan mode (analysis only, no code changes)
- * - /cline-act or /execute - Enter act mode (execute approved plan)
+ * Registers two agents for Cline-style workflow:
+ * - cline-plan: Analysis and planning mode (no code changes)
+ * - cline-act: Execution mode (implements the plan)
  * 
  * @param {Object} ctx - Plugin context
  * @param {Object} ctx.client - OpenCode SDK client
@@ -23,160 +21,90 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  */
 export default async function ClineModePlugin({ client, project, directory, worktree, $ }) {
   // Load prompt files
-  const planPrompt = readFileSync(join(__dirname, 'prompts/plan.md'), 'utf-8');
-  const actPrompt = readFileSync(join(__dirname, 'prompts/act.md'), 'utf-8');
-
-  // Session state management
-  const sessionModes = new Map();
+  const planPromptPath = join(__dirname, 'prompts/plan.md');
+  const actPromptPath = join(__dirname, 'prompts/act.md');
 
   await client.app.log({
     body: {
       service: 'opencode-cline-mode',
       level: 'info',
-      message: 'Cline Mode Plugin initialized',
+      message: 'Cline Mode Plugin initialized - registering agents',
       extra: { 
         directory,
         worktree,
-        project: project.name 
+        project: project.name,
+        planPrompt: planPromptPath,
+        actPrompt: actPromptPath
       },
     },
   });
 
   return {
     /**
-     * Intercept command execution to handle Cline mode commands
+     * Register agent configurations
      */
-    'command.execute.before': async (input, output) => {
-      const { command, sessionID, arguments: args } = input;
-
-      if (command === 'cline-plan') {
-        sessionModes.set(sessionID, 'plan');
-        
-        await client.app.log({
-          body: {
-            service: 'opencode-cline-mode',
-            level: 'info',
-            message: 'Plan mode activated',
-            extra: { sessionID },
-          },
-        });
-
-        output.parts.push({
-          type: 'text',
-          text: `🎯 **Cline Plan Mode Activated**
-
-You are now in **PLAN MODE**. In this mode:
-- ✅ You can analyze the codebase
-- ✅ You can create detailed implementation plans
-- ❌ You cannot make any code changes
-- ❌ You cannot execute commands
-
-${args || '请描述你想要实现的功能，我会为你创建详细的实施计划。'}
-
----
-
-**提示**: 计划完成后，输入 \`/cline-act\` 或 \`/execute\` 来执行计划。`
-        });
-      } else if (command === 'cline-act' || command === 'execute') {
-        sessionModes.set(sessionID, 'act');
-        
-        await client.app.log({
-          body: {
-            service: 'opencode-cline-mode',
-            level: 'info',
-            message: 'Act mode activated',
-            extra: { sessionID },
-          },
-        });
-
-        output.parts.push({
-          type: 'text',
-          text: `⚡ **Cline Act Mode Activated**
-
-You are now in **ACT MODE**. In this mode:
-- ✅ You can execute the approved plan step by step
-- ✅ You can make code changes
-- ✅ You can run commands
-- ⚠️ You must follow the plan exactly
-
-${args || '开始执行计划...'}
-
----
-
-**提示**: 我会逐步执行计划，每完成一步都会向你报告进度。`
-        });
-      } else if (command === 'cline-exit' || command === 'exit-cline') {
-        const currentMode = sessionModes.get(sessionID);
-        sessionModes.delete(sessionID);
-        
-        await client.app.log({
-          body: {
-            service: 'opencode-cline-mode',
-            level: 'info',
-            message: 'Cline mode deactivated',
-            extra: { sessionID, previousMode: currentMode },
-          },
-        });
-
-        output.parts.push({
-          type: 'text',
-          text: `👋 **Cline Mode Deactivated**
-
-已退出 ${currentMode === 'plan' ? 'Plan' : currentMode === 'act' ? 'Act' : 'Cline'} 模式，恢复正常对话模式。`
-        });
+    config: async (config) => {
+      // Ensure agent object exists
+      if (!config.agent) {
+        config.agent = {};
       }
+
+      // Register cline-plan agent
+      config.agent['cline-plan'] = {
+        mode: 'primary',
+        model: config.model || 'inherit', // Use default model or inherit
+        tools: {
+          bash: false,  // No command execution in plan mode
+          edit: false,  // No file editing in plan mode
+          write: false, // No file writing in plan mode
+        },
+        system: [readFileSync(planPromptPath, 'utf-8')],
+      };
+
+      // Register cline-act agent
+      config.agent['cline-act'] = {
+        mode: 'primary',
+        model: config.model || 'inherit', // Use default model or inherit
+        tools: {
+          bash: true,  // Allow command execution
+          edit: true,  // Allow file editing
+          write: true, // Allow file writing
+        },
+        system: [readFileSync(actPromptPath, 'utf-8')],
+      };
+
+      await client.app.log({
+        body: {
+          service: 'opencode-cline-mode',
+          level: 'info',
+          message: 'Agents registered successfully',
+          extra: {
+            agents: ['cline-plan', 'cline-act'],
+            planTools: config.agent['cline-plan'].tools,
+            actTools: config.agent['cline-act'].tools,
+          },
+        },
+      });
     },
 
     /**
-     * Inject system prompts based on current mode
+     * Log when agents are used
      */
-    'experimental.chat.system.transform': async (input, output) => {
-      const { sessionID } = input;
-      const mode = sessionModes.get(sessionID);
-
-      if (mode === 'plan') {
-        output.system.push(planPrompt);
-        
+    'chat.message': async (input, output) => {
+      const { agent } = input;
+      
+      if (agent === 'cline-plan' || agent === 'cline-act') {
         await client.app.log({
           body: {
             service: 'opencode-cline-mode',
-            level: 'debug',
-            message: 'Plan prompt injected',
-            extra: { sessionID },
-          },
-        });
-      } else if (mode === 'act') {
-        output.system.push(actPrompt);
-        
-        await client.app.log({
-          body: {
-            service: 'opencode-cline-mode',
-            level: 'debug',
-            message: 'Act prompt injected',
-            extra: { sessionID },
-          },
-        });
-      }
-    },
-
-    /**
-     * Clean up session state when session is deleted
-     */
-    'event': async ({ event }) => {
-      if (event.type === 'session.deleted') {
-        const hadMode = sessionModes.has(event.sessionID);
-        sessionModes.delete(event.sessionID);
-        
-        if (hadMode) {
-          await client.app.log({
-            body: {
-              service: 'opencode-cline-mode',
-              level: 'debug',
-              message: 'Session state cleaned up',
-              extra: { sessionID: event.sessionID },
+            level: 'info',
+            message: `${agent} agent activated`,
+            extra: {
+              sessionID: input.sessionID,
+              agent: agent,
             },
-          });
-        }
+          },
+        });
       }
     },
   };

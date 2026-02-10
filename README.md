@@ -42,13 +42,17 @@ ln -s $(pwd)/opencode-cline-mode ~/.config/opencode/plugins/opencode-cline-mode
 
 ## 🚀 Usage
 
-### Plan Mode
+This plugin registers two independent agents in OpenCode:
 
-Enter plan mode to analyze requirements and create implementation plans:
+### 1. `cline-plan` Agent - Planning Mode
+
+Start a new session with the plan agent:
 
 ```bash
-/cline-plan I want to add user authentication with JWT tokens
+opencode --agent cline-plan
 ```
+
+Or switch to it in TUI by pressing `Tab` and selecting `cline-plan`.
 
 In plan mode, the AI will:
 - ✅ Analyze your codebase
@@ -57,36 +61,38 @@ In plan mode, the AI will:
 - ❌ NOT make any code changes
 - ❌ NOT execute any commands
 
-### Act Mode
+### 2. `cline-act` Agent - Execution Mode
 
-Once you've reviewed and approved the plan, execute it:
+Start a new session with the act agent:
 
 ```bash
-/cline-act
-# or
-/execute
+opencode --agent cline-act
 ```
 
+Or switch to it in TUI by pressing `Tab` and selecting `cline-act`.
+
 In act mode, the AI will:
-- ✅ Execute the plan step by step
+- ✅ Execute plans step by step
 - ✅ Make code changes as specified
 - ✅ Run verification commands
 - ✅ Report progress after each step
 - ⚠️ Stop and ask for guidance on errors
 
-### Exit Cline Mode
+### Switching Between Agents
 
-Return to normal OpenCode behavior:
-
-```bash
-/cline-exit
-```
+In the OpenCode TUI:
+1. Press `Tab` to see available agents
+2. Select `cline-plan` or `cline-act`
+3. Start a new conversation in that mode
 
 ## 📖 Example Workflow
 
 ```bash
-# 1. Start with a feature request in plan mode
-/cline-plan Add soft delete functionality to the notes system
+# 1. Start with planning
+opencode --agent cline-plan
+
+# In the TUI, describe your feature:
+# "Add soft delete functionality to the notes system"
 
 # AI creates a detailed plan with:
 # - Impact scope (files to modify/create)
@@ -95,19 +101,19 @@ Return to normal OpenCode behavior:
 # - Verification steps
 
 # 2. Review the plan, ask questions, iterate
-Can you also add a trash view to show deleted notes?
+# "Can you also add a trash view to show deleted notes?"
 
-# 3. Once satisfied, execute the plan
-/execute
+# 3. Once satisfied, switch to act mode
+# Press Tab, select cline-act, start new session
+
+# 4. Provide the plan or ask to execute
+# "Execute the plan we discussed"
 
 # AI executes step by step:
 # ✅ Step 1/8: Update Note Model
 # ✅ Step 2/8: Create Database Migration
 # ✅ Step 3/8: Modify Delete API
 # ...
-
-# 4. Return to normal mode when done
-/cline-exit
 ```
 
 ## 🎨 Plan Mode Output Format
