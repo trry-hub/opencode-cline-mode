@@ -41,6 +41,24 @@ git clone https://github.com/trry-hub/opencode-cline-mode.git
 ln -s $(pwd)/opencode-cline-mode ~/.config/opencode/plugins/opencode-cline-mode
 ```
 
+**Important**: When using local installation via symlink, **do NOT** add `"opencode-cline-mode"` to the `plugin` array in `opencode.json`. OpenCode automatically loads plugins from the `~/.config/opencode/plugins/` directory.
+
+❌ **Wrong** (will cause installation error):
+```json
+{
+  "plugin": ["opencode-cline-mode"]
+}
+```
+
+✅ **Correct** (no plugin array entry needed):
+```json
+{
+  "plugin": []
+}
+```
+
+The plugin will be loaded automatically from the symlink.
+
 ## 🚀 Usage
 
 This plugin registers two independent agents in OpenCode:

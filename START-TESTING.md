@@ -200,6 +200,41 @@ opencode
 
 ## 🐛 遇到问题？
 
+### 问题 0: BunInstallFailedError: opencode-cline-mode
+
+**错误信息：**
+```
+{
+  "name": "BunInstallFailedError",
+  "data": {
+    "pkg": "opencode-cline-mode",
+    "version": "latest"
+  }
+}
+```
+
+**原因：** `opencode.json` 的 `plugin` 数组中包含了 `"opencode-cline-mode"`，OpenCode 尝试从 npm 安装但找不到（因为我们还没发布）。
+
+**解决：**
+```bash
+# 编辑配置文件
+nano ~/.config/opencode/opencode.json
+
+# 找到 "plugin" 数组，移除 "opencode-cline-mode"
+# 改为：
+{
+  "plugin": [
+    "opencode-antigravity-auth"
+  ]
+}
+
+# 保存后重启 OpenCode
+```
+
+**说明：** 通过符号链接安装的插件会自动加载，不需要在 `plugin` 数组中声明。
+
+---
+
 ### 问题 1: 仍然看到默认 agents
 
 **原因：** 插件可能没有正确加载
