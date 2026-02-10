@@ -1,9 +1,31 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, realpathSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname, join, resolve } from 'path';
 import { homedir } from 'os';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// Resolve to the real plugin directory (works even when symlinked or copied)
+const __filename = fileURLToPath(import.meta.url);
+const realPluginDir = dirname(realpathSync(__filename));
+
+// Try to find prompts directory
+let promptsDir;
+const possiblePaths = [
+  join(realPluginDir, 'prompts'),           // Real installation directory
+  join(dirname(__filename), 'prompts'),     // Resolved symlink location
+  join(process.cwd(), 'prompts'),          // Current directory (for testing)
+  join(homedir(), '.config/opencode/plugins/opencode-cline-mode/prompts'), // Local plugins
+];
+
+for (const path of possiblePaths) {
+  if (existsSync(path)) {
+    promptsDir = path;
+    break;
+  }
+}
+
+if (!promptsDir) {
+  throw new Error(`Could not find prompts directory. Searched: ${possiblePaths.join(', ')}`);
+}
 
 /**
  * Load plugin configuration
@@ -48,12 +70,21 @@ function loadPluginConfig(directory) {
  * @returns {Promise<Object>} Plugin hooks
  */
 export default async function ClineModePlugin({ client, project, directory, worktree, $ }) {
+  console.log('[CLINE-MODE] Plugin function called!');
+  console.log('[CLINE-MODE] Directory:', directory);
+  console.log('[CLINE-MODE] Project:', project?.name);
+  
   // Load plugin configuration
   const pluginConfig = loadPluginConfig(directory);
+  console.log('[CLINE-MODE] Plugin config:', pluginConfig);
 
   // Load prompt files
-  const planPromptPath = join(__dirname, 'prompts/plan.md');
-  const actPromptPath = join(__dirname, 'prompts/act.md');
+  const planPromptPath = join(promptsDir, 'plan.md');
+  const actPromptPath = join(promptsDir, 'act.md');
+  
+  console.log('[CLINE-MODE] Prompts dir:', promptsDir);
+  console.log('[CLINE-MODE] Plan prompt path:', planPromptPath);
+  console.log('[CLINE-MODE] Act prompt path:', actPromptPath);
 
   await client.app.log({
     body: {
@@ -68,10 +99,12 @@ export default async function ClineModePlugin({ client, project, directory, work
       },
     },
   });
+  
+  console.log('[CLINE-MODE] Returning hooks...');
 
   return {
     /**
-     * Configure agents
+     * Configure agents - completely replace agent configuration
      */
     config: async (config) => {
       // Read prompt files
@@ -83,6 +116,9 @@ export default async function ClineModePlugin({ client, project, directory, work
       const planModel = pluginConfig.plan_model || defaultModel;
       const actModel = pluginConfig.act_model || defaultModel;
 
+      // Save the original config.agent
+      const originalConfigAgent = config.agent || {};
+
       // Create Cline agents
       const clineAgents = {
         'cline-plan': {
@@ -90,9 +126,9 @@ export default async function ClineModePlugin({ client, project, directory, work
           model: planModel,
           description: 'Cline Plan Mode - Analysis and planning without code changes',
           tools: {
-            bash: false,  // No command execution in plan mode
-            edit: false,  // No file editing in plan mode
-            write: false, // No file writing in plan mode
+            bash: false,
+            edit: false,
+            write: false,
           },
           system: [planPrompt],
         },
@@ -101,36 +137,55 @@ export default async function ClineModePlugin({ client, project, directory, work
           model: actModel,
           description: 'Cline Act Mode - Execute plans with full tool access',
           tools: {
-            bash: true,  // Allow command execution
-            edit: true,  // Allow file editing
-            write: true, // Allow file writing
+            bash: true,
+            edit: true,
+            write: true,
           },
           system: [actPrompt],
         },
       };
 
       if (pluginConfig.replace_default_agents) {
-        // COMPLETELY REPLACE the agent configuration
-        // This removes all default OpenCode agents (plan, build, etc.)
-        config.agent = clineAgents;
+        // Strategy: Hide default agents, show only Cline agents
+        const hiddenAgents = {};
+        
+        // Demote all agents from opencode.json to subagent and hide them
+        for (const [name, agentConfig] of Object.entries(originalConfigAgent)) {
+          if (agentConfig && typeof agentConfig === 'object') {
+            hiddenAgents[name] = {
+              ...agentConfig,
+              mode: 'subagent',
+              hidden: true,
+            };
+          }
+        }
+        
+        // COMPLETELY REPLACE config.agent
+        // Put Cline agents first, then hidden agents
+        config.agent = {
+          ...clineAgents,
+          ...hiddenAgents,
+        };
+        
+        // Set default agent to cline-plan
+        config.default_agent = pluginConfig.default_agent || 'cline-plan';
         
         await client.app.log({
           body: {
             service: 'opencode-cline-mode',
             level: 'info',
-            message: 'Default agents replaced with Cline agents',
+            message: 'Cline Mode: Default agents hidden, only Cline agents visible',
             extra: {
-              agents: Object.keys(config.agent),
+              visibleAgents: Object.keys(clineAgents),
+              hiddenAgents: Object.keys(hiddenAgents),
+              defaultAgent: config.default_agent,
             },
           },
         });
       } else {
         // ADD Cline agents alongside existing agents
-        if (!config.agent) {
-          config.agent = {};
-        }
         config.agent = {
-          ...config.agent,
+          ...originalConfigAgent,
           ...clineAgents,
         };
         
@@ -138,30 +193,13 @@ export default async function ClineModePlugin({ client, project, directory, work
           body: {
             service: 'opencode-cline-mode',
             level: 'info',
-            message: 'Cline agents added alongside default agents',
+            message: 'Cline Mode: Cline agents added alongside default agents',
             extra: {
-              agents: Object.keys(config.agent),
+              allAgents: Object.keys(config.agent),
             },
           },
         });
       }
-
-      // Set default agent
-      config.default_agent = pluginConfig.default_agent || 'cline-plan';
-
-      await client.app.log({
-        body: {
-          service: 'opencode-cline-mode',
-          level: 'info',
-          message: 'Agent configuration complete',
-          extra: {
-            defaultAgent: config.default_agent,
-            replaceMode: pluginConfig.replace_default_agents,
-            planModel,
-            actModel,
-          },
-        },
-      });
     },
 
     /**
