@@ -1,0 +1,44 @@
+{
+  "name": "opencode-cline-mode",
+  "version": "1.0.0",
+  "description": "Cline-style plan and act workflow for OpenCode - structured implementation planning with step-by-step execution",
+  "main": "index.js",
+  "type": "module",
+  "keywords": [
+    "opencode",
+    "plugin",
+    "cline",
+    "plan",
+    "act",
+    "workflow",
+    "ai-coding",
+    "agent",
+    "planning",
+    "execution"
+  ],
+  "author": "trry",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trry/opencode-cline-mode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/trry/opencode-cline-mode/issues"
+  },
+  "homepage": "https://github.com/trry/opencode-cline-mode#readme",
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.1.53"
+  },
+  "peerDependencies": {
+    "opencode-ai": ">=1.0.0"
+  },
+  "files": [
+    "index.js",
+    "prompts/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

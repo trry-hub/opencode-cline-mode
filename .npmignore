@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Development files
+examples/
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+test/
+*.test.js
+
+# Documentation drafts
+docs/
