@@ -3,8 +3,6 @@ node_modules/
 
 # Development files
 examples/
-.vscode/
-.idea/
 
 # Git
 .git/
@@ -14,9 +12,17 @@ examples/
 .DS_Store
 Thumbs.db
 
-# Test files
-test/
-*.test.js
+# Development docs (keep essential ones)
+*.sh
+!enable-plugin.sh
+!disable-plugin.sh
+!verify-setup.sh
+FIX_HIDE_AGENTS.md
+FINAL_SUMMARY.md
+START_HERE.md
+QUICKREF.md
+USAGE.md
 
-# Documentation drafts
-docs/
+# Config files
+opencode-cline-mode.example.json
+opencode-cline-mode.schema.json

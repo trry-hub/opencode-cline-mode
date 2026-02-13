@@ -165,10 +165,10 @@ Then you'll see all agents when pressing `Tab`:
 ## 📖 Example Workflow
 
 ```bash
-# 1. Start with planning
-opencode --agent cline-plan
+# 1. Start with planning (default mode)
+opencode
 
-# In the TUI, describe your feature:
+# Describe your feature:
 # "Add soft delete functionality to the notes system"
 
 # AI creates a detailed plan with:
@@ -181,11 +181,9 @@ opencode --agent cline-plan
 # "Can you also add a trash view to show deleted notes?"
 
 # 3. Once satisfied, switch to act mode
-# Press Tab, select cline-act, start new session
+# Press Tab, select cline-act
 
-# 4. Provide the plan or ask to execute
-# "Execute the plan we discussed"
-
+# 4. Execute the plan
 # AI executes step by step:
 # ✅ Step 1/8: Update Note Model
 # ✅ Step 2/8: Create Database Migration
@@ -212,12 +210,55 @@ Execution includes:
 - **Error Handling** - Stops on errors with suggested solutions
 - **Rollback Support** - Can undo changes if needed
 
-## 🔧 Configuration
+## 🔧 Development
 
-The plugin works with default settings, but you can customize prompts by editing:
+### Prerequisites
 
-- `prompts/plan.md` - Plan mode system prompt
-- `prompts/act.md` - Act mode system prompt
+- Node.js >= 18.0.0
+- npm >= 9.0.0
+
+### Setup
+
+```bash
+git clone https://github.com/trry-hub/opencode-cline-mode.git
+cd opencode-cline-mode
+npm install
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Test
+
+```bash
+npm test                 # Run tests
+npm run test:watch       # Watch mode
+npm run test:coverage    # With coverage
+```
+
+### Project Structure
+
+```
+opencode-cline-mode/
+├── src/
+│   ├── index.ts              # Main plugin entry
+│   ├── types.ts              # TypeScript definitions
+│   ├── logger.ts             # Unified logging
+│   ├── config-validator.ts   # Config validation
+│   ├── config-loader.ts      # Config loading
+│   ├── path-resolver.ts      # Path resolution
+│   ├── agent-builder.ts      # Agent configuration
+│   └── message-transformer.ts # Message processing
+├── prompts/
+│   ├── plan.md               # Plan mode prompt
+│   └── act.md                # Act mode prompt
+├── dist/                     # Compiled output
+├── docs/                     # Documentation
+└── package.json
+```
 
 ## 🤝 Contributing
 
@@ -238,6 +279,14 @@ MIT © [trry](https://github.com/trry)
 - Inspired by [Cline](https://github.com/cline/cline) workflow
 - Built for [OpenCode](https://opencode.ai)
 - Thanks to the OpenCode community
+
+## 📚 Documentation
+
+- [Getting Started](docs/getting-started.md) - Quick start guide
+- [Configuration](docs/configuration.md) - Customize plugin behavior
+- [Usage Guide](docs/usage.md) - Detailed workflow examples
+- [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
+- [Contributing](docs/contributing.md) - How to contribute
 
 ## 📚 Related Projects
 

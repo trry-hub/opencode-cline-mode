@@ -7,5 +7,9 @@
   
   "plan_model": null,
   
-  "act_model": null
+  "act_model": null,
+  
+  "plan_temperature": 0.1,
+  
+  "act_temperature": 0.3
 }
