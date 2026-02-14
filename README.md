@@ -18,6 +18,21 @@ A plugin for [OpenCode](https://opencode.ai) that brings Cline-style structured 
 - 🎨 **Zero Config** - Works out of the box with sensible defaults
 - 📦 **Similar to oh-my-opencode** - Replaces default agents for a focused workflow
 
+### 🔒 Permission Control
+
+**cline-plan** (Read-Only):
+- ✅ Read files
+- ✅ Search codebase
+- ❌ Edit files (denied)
+- ❌ Execute bash commands (denied)
+
+**cline-act** (Full Access):
+- ✅ Edit files (allowed)
+- ⚠️ Execute bash commands (asks for permission)
+- ✅ All other tools
+
+This ensures you can safely plan without accidentally modifying code.
+
 ## 📦 Installation
 
 ### From npm (Recommended)

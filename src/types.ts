@@ -23,15 +23,20 @@ export interface PluginConfig {
 /**
  * Agent configuration
  */
+type PermissionAction = 'allow' | 'ask' | 'deny';
+
 export interface AgentConfig {
   mode: 'primary' | 'subagent';
   model: string;
   temperature: number;
   description: string;
-  tools: {
-    bash?: boolean;
-    edit?: boolean;
-    write?: boolean;
+  permission?: {
+    edit?: {
+      '*': PermissionAction;
+    };
+    bash?: {
+      '*': PermissionAction;
+    };
   };
   system: string[];
   hidden?: boolean;

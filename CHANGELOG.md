@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.2] - 2026-02-14
 
 ### Fixed
+- Fixed cline-plan permissions to use OpenCode's `permission` field instead of deprecated `tools` field
+- cline-plan now correctly denies edit and bash operations
+- cline-act now correctly allows edit operations and asks for bash commands
 - Improved plan completion prompt to clarify `/execute-plan` is a tool, not a command
 - Enhanced prompt text for better user understanding
 - Fixed failing tests after prompt text changes

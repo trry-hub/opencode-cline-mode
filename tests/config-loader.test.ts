@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, rm, writeFile, mkdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { loadPluginConfig } from './config-loader';
+import { loadPluginConfig } from '../src/config-loader';
 
 describe('config-loader', () => {
   let tempDir: string;

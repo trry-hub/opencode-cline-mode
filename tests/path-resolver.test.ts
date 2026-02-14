@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, rm, writeFile, mkdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { resolvePromptsDir, resolveConfigPath } from './path-resolver';
+import { resolvePromptsDir, resolveConfigPath } from '../src/path-resolver';
 
 describe('path-resolver', () => {
   let tempDir: string;

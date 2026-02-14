@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { transformMessages } from './message-transformer';
-import type { TransformOutput } from './types';
+import { transformMessages } from '../src/message-transformer';
+import type { TransformOutput } from '../src/types';
 
 describe('message-transformer', () => {
   describe('transformMessages', () => {

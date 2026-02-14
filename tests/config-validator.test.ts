@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { validateConfig, getDefaultConfig } from './config-validator';
-import type { PluginConfig } from './types';
+import { validateConfig, getDefaultConfig } from '../src/config-validator';
+import type { PluginConfig } from '../src/types';
 
 describe('config-validator', () => {
   describe('validateConfig', () => {

@@ -21,10 +21,13 @@ export function buildClineAgents(params: BuildAgentsParams): Record<string, Agen
       model: planModel,
       temperature: planTemperature,
       description: 'Cline Plan Mode - Analysis and planning without code changes',
-      tools: {
-        bash: false,
-        edit: false,
-        write: false,
+      permission: {
+        edit: {
+          '*': 'deny',
+        },
+        bash: {
+          '*': 'deny',
+        },
       },
       system: [planPrompt],
     },
@@ -33,10 +36,13 @@ export function buildClineAgents(params: BuildAgentsParams): Record<string, Agen
       model: actModel,
       temperature: actTemperature,
       description: 'Cline Act Mode - Execute plans with full tool access',
-      tools: {
-        bash: true,
-        edit: true,
-        write: true,
+      permission: {
+        edit: {
+          '*': 'allow',
+        },
+        bash: {
+          '*': 'ask',
+        },
       },
       system: [actPrompt],
     },

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { buildClineAgents, hideDefaultAgents } from './agent-builder';
-import type { AgentConfig, PluginConfig } from './types';
+import { buildClineAgents, hideDefaultAgents } from '../src/agent-builder';
+import type { AgentConfig, PluginConfig } from '../src/types';
 
 describe('agent-builder', () => {
   const planPrompt = 'Plan mode prompt';
@@ -12,6 +12,8 @@ describe('agent-builder', () => {
     act_model: '',
     plan_temperature: 0.1,
     act_temperature: 0.3,
+    show_completion_toast: true,
+    enable_execute_command: true,
   };
 
   describe('buildClineAgents', () => {
@@ -26,8 +28,8 @@ describe('agent-builder', () => {
       expect(agents['cline-plan']).toBeDefined();
       expect(agents['cline-act']).toBeDefined();
       expect(agents['cline-plan'].mode).toBe('primary');
-      expect(agents['cline-plan'].tools.bash).toBe(false);
-      expect(agents['cline-act'].tools.bash).toBe(true);
+      expect(agents['cline-plan'].permission?.bash?.['*']).toBe('deny');
+      expect(agents['cline-act'].permission?.bash?.['*']).toBe('ask');
     });
 
     it('should use custom models when specified', () => {
@@ -57,7 +59,7 @@ describe('agent-builder', () => {
           model: 'claude-3',
           temperature: 0.5,
           description: 'Build agent',
-          tools: { bash: true, edit: true, write: true },
+          permission: { edit: { '*': 'allow' }, bash: { '*': 'allow' } },
           system: ['Build prompt'],
         },
         plan: {
@@ -65,7 +67,7 @@ describe('agent-builder', () => {
           model: 'claude-3',
           temperature: 0.5,
           description: 'Plan agent',
-          tools: { bash: false, edit: false, write: false },
+          permission: { edit: { '*': 'deny' }, bash: { '*': 'deny' } },
           system: ['Plan prompt'],
         },
       };
