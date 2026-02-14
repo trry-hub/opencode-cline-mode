@@ -14,9 +14,11 @@ A plugin for [OpenCode](https://opencode.ai) that brings Cline-style structured 
 - 🔗 **Automatic Plan Inheritance** - Plans are automatically passed from plan mode to act mode (no copy-paste needed!)
 - 🔄 **Clean Agent List** - Only shows `cline-plan` and `cline-act`, removes default agents
 - 📝 **Structured Output** - Clear, actionable plans with risk assessment and verification steps
-- 🚀 **Quick Execute Command** - Type `/execute-plan` to quickly switch from plan to act mode (NEW!)
+- 🚀 **Quick Execute Command** - Type `/execute-plan` to quickly switch from plan to act mode
+- 🌐 **Dynamic Cline Integration** - Fetch latest prompts from Cline's official repository (NEW in v2.0!)
+- 💾 **Smart Caching** - Cache prompts locally to reduce network requests (NEW in v2.0!)
+- 🔧 **Flexible Configuration** - Choose between local, GitHub, or auto mode (NEW in v2.0!)
 - 🎨 **Zero Config** - Works out of the box with sensible defaults
-- 📦 **Similar to oh-my-opencode** - Replaces default agents for a focused workflow
 
 ### 🔒 Permission Control
 
@@ -30,6 +32,8 @@ A plugin for [OpenCode](https://opencode.ai) that brings Cline-style structured 
 - ✅ Edit files (allowed)
 - ⚠️ Execute bash commands (asks for permission)
 - ✅ All other tools
+
+**Note**: When `replace_default_agents: true` (default), OpenCode's default agents (plan, build, etc.) are **completely removed** from the agent list. You will only see `cline-plan` and `cline-act` agents. This ensures a focused Cline-style workflow without any confusion.
 
 This ensures you can safely plan without accidentally modifying code.
 
@@ -137,7 +141,7 @@ In the OpenCode TUI:
    - Watch as the AI implements the plan step by step
    - Approve each change or provide feedback
 
-**Note**: This plugin **replaces** OpenCode's default agents (plan, build, etc.) to provide a focused Cline-style workflow. If you want to use default agents alongside Cline agents, see [Configuration](#configuration) below.
+**Note**: This plugin **completely replaces** OpenCode's default agents (plan, build, etc.) to provide a focused Cline-style workflow. The default agents are removed from the agent list, ensuring only `cline-plan` and `cline-act` are available. If you want to use default agents alongside Cline agents, see [Configuration](#configuration) below.
 
 ---
 
@@ -168,6 +172,10 @@ Create `~/.config/opencode/opencode-cline-mode.json` or `.opencode/opencode-clin
 | `act_temperature` | number | `0.3` | Temperature for act mode (0-1) |
 | `show_completion_toast` | boolean | `true` | Show toast notification when plan is complete |
 | `enable_execute_command` | boolean | `true` | Enable `/execute-plan` command for quick switching from plan to act mode |
+| `prompt_source` | string | `"auto"` | Prompt source: `"local"` (use local files), `"github"` (fetch from Cline repo), `"auto"` (cache → github → local) |
+| `cline_version` | string | `"latest"` | Cline version to use: `"latest"` or specific version/branch (e.g., `"main"`, `"v1.2.3"`) |
+| `cache_ttl` | number | `24` | Cache time-to-live in hours |
+| `fallback_to_local` | boolean | `true` | Fallback to local prompts if GitHub fetch fails |
 
 #### Example: Keep Default Agents
 
@@ -195,6 +203,57 @@ Then you'll see all agents when pressing `Tab`:
   "act_model": "anthropic/claude-sonnet-4"
 }
 ```
+
+#### Example: Use Latest Cline Prompts from GitHub
+
+```json
+{
+  "prompt_source": "github",
+  "cline_version": "latest",
+  "cache_ttl": 24,
+  "fallback_to_local": true
+}
+```
+
+This will:
+- Fetch the latest prompts from Cline's GitHub repository
+- Cache them for 24 hours
+- Automatically fall back to local prompts if GitHub is unavailable
+
+#### Example: Use Specific Cline Version
+
+```json
+{
+  "prompt_source": "github",
+  "cline_version": "main",
+  "cache_ttl": 168
+}
+```
+
+This will use prompts from Cline's `main` branch and cache for 7 days (168 hours).
+
+#### Example: Always Use Local Prompts
+
+```json
+{
+  "prompt_source": "local"
+}
+```
+
+This disables GitHub fetching and always uses the local prompt files.
+
+### 🌐 Prompt Source Modes
+
+The plugin supports three prompt source modes:
+
+1. **`local`** - Always use local prompt files (fastest, no network required)
+2. **`github`** - Always fetch from Cline's GitHub repository (always up-to-date)
+3. **`auto`** (default) - Smart mode: cache → github → local
+   - First checks cache
+   - If cache expired, fetches from GitHub
+   - If GitHub fails, falls back to local
+
+**Recommendation**: Use `auto` mode for the best balance of performance and freshness.
 
 ### 🚀 Quick Execute Command
 

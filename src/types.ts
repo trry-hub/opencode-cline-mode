@@ -18,6 +18,14 @@ export interface PluginConfig {
   show_completion_toast?: boolean;
   /** Enable /execute-plan command */
   enable_execute_command?: boolean;
+  /** Prompt source: 'local' (use local files), 'github' (fetch from Cline repo), 'auto' (cache -> github -> local) */
+  prompt_source?: 'local' | 'github' | 'auto';
+  /** Cline version to use: 'latest' or specific version/branch */
+  cline_version?: string;
+  /** Cache TTL in hours */
+  cache_ttl?: number;
+  /** Fallback to local prompts if GitHub fetch fails */
+  fallback_to_local?: boolean;
 }
 
 /**

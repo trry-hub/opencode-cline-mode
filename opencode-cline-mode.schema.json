@@ -44,6 +44,28 @@
       "type": "boolean",
       "default": true,
       "description": "Enable /execute-plan command for quick switching from plan to act mode"
+    },
+    "prompt_source": {
+      "type": "string",
+      "enum": ["local", "github", "auto"],
+      "default": "auto",
+      "description": "Source for prompts: 'local' (use local files), 'github' (fetch from Cline repo), 'auto' (cache -> github -> local)"
+    },
+    "cline_version": {
+      "type": "string",
+      "default": "latest",
+      "description": "Cline version to use: 'latest' or specific version/branch (e.g., 'main', 'v1.2.3')"
+    },
+    "cache_ttl": {
+      "type": "number",
+      "minimum": 1,
+      "default": 24,
+      "description": "Cache time-to-live in hours"
+    },
+    "fallback_to_local": {
+      "type": "boolean",
+      "default": true,
+      "description": "Fallback to local prompts if GitHub fetch fails"
     }
   }
 }

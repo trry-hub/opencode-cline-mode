@@ -49,20 +49,21 @@ export function buildClineAgents(params: BuildAgentsParams): Record<string, Agen
   };
 }
 
-export function hideDefaultAgents(
-  agents: Record<string, AgentConfig | undefined>
+/**
+ * Filter out default OpenCode agents, keeping only Cline agents
+ * This ensures complete replacement rather than just hiding
+ */
+export function filterClineOnlyAgents(
+  originalAgents: Record<string, AgentConfig | undefined>
 ): Record<string, AgentConfig> {
-  const hidden: Record<string, AgentConfig> = {};
+  const clineOnly: Record<string, AgentConfig> = {};
 
-  for (const [name, agentConfig] of Object.entries(agents)) {
-    if (agentConfig && typeof agentConfig === 'object') {
-      hidden[name] = {
-        ...agentConfig,
-        mode: 'subagent',
-        hidden: true,
-      };
+  // Only keep cline-plan and cline-act agents
+  for (const [name, agentConfig] of Object.entries(originalAgents)) {
+    if ((name === 'cline-plan' || name === 'cline-act') && agentConfig) {
+      clineOnly[name] = agentConfig;
     }
   }
 
-  return hidden;
+  return clineOnly;
 }

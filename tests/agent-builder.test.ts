@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildClineAgents, hideDefaultAgents } from '../src/agent-builder';
+import { buildClineAgents, filterClineOnlyAgents } from '../src/agent-builder';
 import type { AgentConfig, PluginConfig } from '../src/types';
 
 describe('agent-builder', () => {
@@ -14,6 +14,10 @@ describe('agent-builder', () => {
     act_temperature: 0.3,
     show_completion_toast: true,
     enable_execute_command: true,
+    prompt_source: 'auto',
+    cline_version: 'latest',
+    cache_ttl: 24,
+    fallback_to_local: true,
   };
 
   describe('buildClineAgents', () => {
@@ -51,9 +55,25 @@ describe('agent-builder', () => {
     });
   });
 
-  describe('hideDefaultAgents', () => {
-    it('should hide default agents', () => {
-      const originalAgents: Record<string, AgentConfig> = {
+  describe('filterClineOnlyAgents', () => {
+    it('should filter to keep only cline agents', () => {
+      const originalAgents: Record<string, AgentConfig | undefined> = {
+        'cline-plan': {
+          mode: 'primary',
+          model: 'claude-3',
+          temperature: 0.5,
+          description: 'Cline Plan',
+          permission: { edit: { '*': 'deny' }, bash: { '*': 'deny' } },
+          system: ['Plan prompt'],
+        },
+        'cline-act': {
+          mode: 'primary',
+          model: 'claude-3',
+          temperature: 0.5,
+          description: 'Cline Act',
+          permission: { edit: { '*': 'allow' }, bash: { '*': 'ask' } },
+          system: ['Act prompt'],
+        },
         build: {
           mode: 'primary',
           model: 'claude-3',
@@ -72,12 +92,13 @@ describe('agent-builder', () => {
         },
       };
 
-      const hidden = hideDefaultAgents(originalAgents);
+      const filtered = filterClineOnlyAgents(originalAgents);
 
-      expect(hidden['build'].mode).toBe('subagent');
-      expect(hidden['build'].hidden).toBe(true);
-      expect(hidden['plan'].mode).toBe('subagent');
-      expect(hidden['plan'].hidden).toBe(true);
+      expect(Object.keys(filtered)).toHaveLength(2);
+      expect(filtered['cline-plan']).toBeDefined();
+      expect(filtered['cline-act']).toBeDefined();
+      expect(filtered['build']).toBeUndefined();
+      expect(filtered['plan']).toBeUndefined();
     });
   });
 });

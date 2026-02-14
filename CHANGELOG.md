@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-02-14
+
+### Added
+- **Dynamic Cline Integration**: Fetch latest prompts directly from Cline's official GitHub repository
+- **Smart Caching System**: Local cache with configurable TTL to reduce network requests
+- **Tool Name Mapping**: Automatic conversion of Cline tool names to OpenCode tool names
+- **Flexible Prompt Sources**: Choose between `local`, `github`, or `auto` mode
+- **Version Control**: Specify Cline version or use `latest` to always get the newest prompts
+- **Fallback Strategy**: Automatically fall back to local prompts if GitHub fetch fails
+- New configuration options:
+  - `prompt_source`: Control where prompts come from
+  - `cline_version`: Specify Cline version to use
+  - `cache_ttl`: Configure cache expiration time
+  - `fallback_to_local`: Enable/disable fallback to local prompts
+
+### Changed
+- **BREAKING**: Removed backward compatibility - now requires new configuration format
+- **BREAKING**: Default agents are now completely removed (not just hidden) when `replace_default_agents: true`
+- Prompts are now dynamically loaded instead of pre-loaded at startup
+- Enhanced logging for prompt loading and caching
+- Improved error handling with detailed error messages
+- Better agent isolation: only `cline-plan` and `cline-act` are visible when replacing default agents
+
+### Fixed
+- Fixed issue where default agents could still be accessible even when "hidden"
+- Default agents are now completely removed from configuration instead of just marked as hidden
+
+### Technical
+- Added `ClineAdapter` core module for coordinating prompt fetching and caching
+- Added `ClineFetcher` for GitHub API integration
+- Added `ClineCache` for local caching with TTL support
+- Added `ClineToolMapper` for automatic tool name conversion
+- Replaced `hideDefaultAgents` with `filterClineOnlyAgents` for cleaner agent management
+- Comprehensive test coverage for all new modules
+- Updated TypeScript types and JSON schema for new configuration options
+
+## [1.3.1] - 2026-02-14
+
+### Performance
+- **Startup Optimization**: Changed from synchronous `readFileSync` to asynchronous `readFile` for prompt loading
+- Prompts are now pre-loaded in parallel during plugin initialization (non-blocking)
+- Added prompt caching to avoid redundant file reads
+- Expected startup time improvement: 50-80%
+
+### Changed
+- `src/index.ts`: Replaced `import { readFileSync }` with `import { readFile }` from `fs/promises`
+- Prompts are now loaded with `Promise.all()` for parallel loading
+- Removed test-plugin.js (was causing unnecessary logging)
+
+## [1.3.0] - 2026-02-14
+
+### Changed
+- **Major Update**: Rewritten prompts based on Cline's official open-source system prompts
+- `prompts/plan.md` now closely follows Cline's PLAN MODE behavior
+- `prompts/act.md` now closely follows Cline's ACT MODE behavior
+- Improved task progress tracking with `task_progress` parameter
+- Better mode switching guidance and user experience
+
+### Added
+- Explicit "Plan Complete" prompt requirement in PLAN MODE
+- `task_progress` tracking instructions in ACT MODE
+- Error handling guidance with solution suggestions
+- Clear separation between read-only tools and execution tools
+
+### Technical
+- Extracted core system prompts from Cline's GitHub repository
+- Adapted Cline's tool system to OpenCode's tool names
+- Maintained Cline's workflow philosophy while ensuring OpenCode compatibility
+
 ## [1.2.2] - 2026-02-14
 
 ### Fixed

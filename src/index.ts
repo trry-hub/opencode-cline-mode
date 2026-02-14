@@ -1,12 +1,12 @@
-import { readFileSync } from 'fs';
 import { join } from 'path';
 import type { PluginContext, OpenCodeConfig } from './types';
 import { isTransformOutput } from './types';
 import { Logger } from './logger';
 import { getPluginDir, resolvePromptsDir } from './path-resolver';
 import { loadPluginConfig } from './config-loader';
-import { buildClineAgents, hideDefaultAgents } from './agent-builder';
+import { buildClineAgents } from './agent-builder';
 import { transformMessages } from './message-transformer';
+import { ClineAdapter } from './cline-adapter';
 
 export default async function ClineModePlugin(context: PluginContext) {
   const { client, project, directory, worktree } = context;
@@ -23,8 +23,38 @@ export default async function ClineModePlugin(context: PluginContext) {
     const pluginConfig = loadPluginConfig(directory);
     await logger.info('Plugin config loaded', { config: pluginConfig });
 
-    const planPromptPath = join(promptsDir, 'plan.md');
-    const actPromptPath = join(promptsDir, 'act.md');
+    // Initialize Cline adapter
+    const cacheDir = join(directory, '.cline-cache');
+    const adapter = new ClineAdapter({
+      promptSource: pluginConfig.prompt_source,
+      clineVersion: pluginConfig.cline_version,
+      cacheTtl: pluginConfig.cache_ttl,
+      fallbackToLocal: pluginConfig.fallback_to_local,
+      cacheDir,
+      localPromptsDir: promptsDir,
+      logger,
+    });
+
+    // Load prompts using the adapter
+    let planPrompt: string;
+    let actPrompt: string;
+
+    try {
+      const prompts = await adapter.getPrompts();
+      planPrompt = prompts.planPrompt;
+      actPrompt = prompts.actPrompt;
+
+      await logger.info('Prompts loaded successfully', {
+        source: prompts.source,
+        planLength: planPrompt.length,
+        actLength: actPrompt.length,
+      });
+    } catch (error) {
+      await logger.error('Failed to load prompts via adapter', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
 
     await logger.info('Cline Mode Plugin initialized', {
       directory,
@@ -35,9 +65,6 @@ export default async function ClineModePlugin(context: PluginContext) {
 
     return {
       config: async (config: OpenCodeConfig) => {
-        const planPrompt = readFileSync(planPromptPath, 'utf-8');
-        const actPrompt = readFileSync(actPromptPath, 'utf-8');
-
         const defaultModel = config.model || 'inherit';
 
         const clineAgents = buildClineAgents({
@@ -50,16 +77,8 @@ export default async function ClineModePlugin(context: PluginContext) {
         const originalConfigAgent = config.agent || {};
 
         if (pluginConfig.replace_default_agents) {
-          const hiddenAgents = hideDefaultAgents(originalConfigAgent);
-
-          config.agent = {
-            ...clineAgents,
-            ...hiddenAgents,
-          };
-
-          if (!config.agent || Object.keys(config.agent).length === 0) {
-            config.agent = { ...clineAgents };
-          }
+          // Completely replace default agents with only Cline agents
+          config.agent = { ...clineAgents };
 
           config.default_agent = pluginConfig.default_agent || 'cline-plan';
 
@@ -67,9 +86,8 @@ export default async function ClineModePlugin(context: PluginContext) {
             config.default_agent = 'cline-plan';
           }
 
-          await logger.info('Cline Mode: Default agents hidden, only Cline agents visible', {
+          await logger.info('Cline Mode: Default agents completely replaced with Cline agents', {
             visibleAgents: Object.keys(clineAgents),
-            hiddenAgents: Object.keys(hiddenAgents),
             defaultAgent: config.default_agent,
           });
         } else {

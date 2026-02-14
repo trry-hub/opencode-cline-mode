@@ -25,3 +25,6 @@ Thumbs.db
 # Build output
 dist/
 build/
+
+# Cline cache
+.cline-cache/

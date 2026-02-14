@@ -26,6 +26,16 @@ const configSchema = {
     },
     show_completion_toast: { type: 'boolean' },
     enable_execute_command: { type: 'boolean' },
+    prompt_source: {
+      type: 'string',
+      enum: ['local', 'github', 'auto'],
+    },
+    cline_version: { type: 'string' },
+    cache_ttl: {
+      type: 'number',
+      minimum: 1,
+    },
+    fallback_to_local: { type: 'boolean' },
   },
   additionalProperties: false,
 };
@@ -59,6 +69,10 @@ export function getDefaultConfig(): Required<PluginConfig> {
     act_temperature: 0.3,
     show_completion_toast: true,
     enable_execute_command: true,
+    prompt_source: 'auto',
+    cline_version: 'latest',
+    cache_ttl: 24,
+    fallback_to_local: true,
   };
 }
 
@@ -74,5 +88,9 @@ export function mergeWithDefaults(userConfig: PluginConfig): Required<PluginConf
     act_temperature: userConfig.act_temperature ?? defaults.act_temperature,
     show_completion_toast: userConfig.show_completion_toast ?? defaults.show_completion_toast,
     enable_execute_command: userConfig.enable_execute_command ?? defaults.enable_execute_command,
+    prompt_source: userConfig.prompt_source ?? defaults.prompt_source,
+    cline_version: userConfig.cline_version ?? defaults.cline_version,
+    cache_ttl: userConfig.cache_ttl ?? defaults.cache_ttl,
+    fallback_to_local: userConfig.fallback_to_local ?? defaults.fallback_to_local,
   };
 }
