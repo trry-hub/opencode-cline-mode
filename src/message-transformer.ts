@@ -6,7 +6,7 @@ interface TransformOptions {
 
 function getPlanCompletionBlock(enableExecuteCommand: boolean): string {
   const executeHint = enableExecuteCommand
-    ? 'Use the `/execute-plan` tool to switch to `cline-act`'
+    ? 'Use the `/start-act` tool to switch to `cline-act`'
     : 'Press `Tab` to switch to `cline-act`';
 
   return `
@@ -101,7 +101,7 @@ export function transformMessages(output: TransformOutput, options?: TransformOp
 
 The following plan was created in the previous planning session.
 
-**To start execution**, use the \`/execute-plan\` tool or press \`Tab\` to switch agents.
+**To start execution**, use the \`/start-act\` tool or press \`Tab\` to switch agents.
 
 ---
 

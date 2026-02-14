@@ -16,7 +16,7 @@ export interface PluginConfig {
   act_temperature?: number;
   /** Show toast notification when plan is complete */
   show_completion_toast?: boolean;
-  /** Enable /execute-plan command */
+  /** Enable /start-act command */
   enable_execute_command?: boolean;
   /** Prompt source: 'local' (use local files), 'github' (fetch from Cline repo), 'auto' (cache -> github -> local) */
   prompt_source?: 'local' | 'github' | 'auto';

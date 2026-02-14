@@ -43,12 +43,12 @@
     "enable_execute_command": {
       "type": "boolean",
       "default": true,
-      "description": "Enable /execute-plan command for quick switching from plan to act mode"
+      "description": "Enable /start-act command for quick switching from plan to act mode"
     },
     "prompt_source": {
       "type": "string",
       "enum": ["local", "github", "auto"],
-      "default": "auto",
+      "default": "local",
       "description": "Source for prompts: 'local' (use local files), 'github' (fetch from Cline repo), 'auto' (cache -> github -> local)"
     },
     "cline_version": {

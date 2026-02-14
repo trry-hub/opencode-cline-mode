@@ -69,7 +69,7 @@ export function getDefaultConfig(): Required<PluginConfig> {
     act_temperature: 0.3,
     show_completion_toast: true,
     enable_execute_command: true,
-    prompt_source: 'auto',
+    prompt_source: 'local',
     cline_version: 'latest',
     cache_ttl: 24,
     fallback_to_local: true,

@@ -1,4 +1,5 @@
 import { join } from 'path';
+import { homedir } from 'os';
 import type { PluginContext, OpenCodeConfig } from './types';
 import { isTransformOutput } from './types';
 import { Logger } from './logger';
@@ -23,8 +24,8 @@ export default async function ClineModePlugin(context: PluginContext) {
     const pluginConfig = loadPluginConfig(directory);
     await logger.info('Plugin config loaded', { config: pluginConfig });
 
-    // Initialize Cline adapter
-    const cacheDir = join(directory, '.cline-cache');
+    // Initialize Cline adapter with global cache directory
+    const cacheDir = join(homedir(), '.config/opencode/.cline-cache');
     const adapter = new ClineAdapter({
       promptSource: pluginConfig.prompt_source,
       clineVersion: pluginConfig.cline_version,
@@ -77,9 +78,27 @@ export default async function ClineModePlugin(context: PluginContext) {
         const originalConfigAgent = config.agent || {};
 
         if (pluginConfig.replace_default_agents) {
-          // Completely replace default agents - do NOT include them at all
-          // OpenCode will use only what we provide here
-          config.agent = { ...clineAgents };
+          // Hide default agents by setting them to hidden mode
+          // This ensures they don't appear in the agent list
+          config.agent = {
+            ...clineAgents,
+            plan: {
+              mode: 'subagent',
+              hidden: true,
+              model: '',
+              temperature: 0,
+              description: '',
+              system: [],
+            },
+            build: {
+              mode: 'subagent',
+              hidden: true,
+              model: '',
+              temperature: 0,
+              description: '',
+              system: [],
+            },
+          };
 
           config.default_agent = pluginConfig.default_agent || 'cline-plan';
 
@@ -87,7 +106,7 @@ export default async function ClineModePlugin(context: PluginContext) {
             config.default_agent = 'cline-plan';
           }
 
-          await logger.info('Cline Mode: Default agents replaced, only Cline agents', {
+          await logger.info('Cline Mode: Default agents hidden, only Cline agents visible', {
             originalAgents: Object.keys(originalConfigAgent),
             clineAgents: Object.keys(clineAgents),
             defaultAgent: config.default_agent,
@@ -127,8 +146,8 @@ export default async function ClineModePlugin(context: PluginContext) {
 
       tool: pluginConfig.enable_execute_command
         ? {
-            'execute-plan': {
-              description: 'Switch to cline-act agent and execute the plan',
+            'start-act': {
+              description: 'Switch to cline-act agent and start execution',
               parameters: {
                 type: 'object',
                 properties: {},
@@ -144,13 +163,13 @@ export default async function ClineModePlugin(context: PluginContext) {
                     },
                   });
 
-                  await logger.info('Execute plan command triggered');
+                  await logger.info('Start act command triggered');
 
                   return {
                     output: '✅ Switching to cline-act agent...',
                   };
                 } catch (error) {
-                  await logger.error('Failed to execute plan command', {
+                  await logger.error('Failed to start act command', {
                     error: error instanceof Error ? error.message : String(error),
                   });
 

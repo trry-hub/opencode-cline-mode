@@ -38,5 +38,10 @@ export function resolveConfigPath(directory: string): string | null {
 
 export function getPluginDir(metaUrl: string): string {
   const __filename = fileURLToPath(metaUrl);
-  return dirname(realpathSync(__filename));
+  const distDir = dirname(realpathSync(__filename));
+  // If we're in the dist directory, go up one level to the package root
+  if (distDir.endsWith('/dist') || distDir.endsWith('\\dist')) {
+    return dirname(distDir);
+  }
+  return distDir;
 }
