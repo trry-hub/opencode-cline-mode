@@ -50,7 +50,8 @@ describe('message-transformer', () => {
       transformMessages(output);
 
       const text = output.messages[0].parts[0].text;
-      expect(text.match(/<system-reminder>/g)).toHaveLength(1);
+      expect(text).toBeDefined();
+      expect(text?.match(/<system-reminder>/g)).toHaveLength(1);
     });
 
     it('should handle empty messages array', () => {
@@ -104,7 +105,8 @@ describe('message-transformer', () => {
       transformMessages(output);
 
       const text = output.messages[1].parts[0].text;
-      expect(text.match(/📋 \*\*Inherited Plan/g)).toHaveLength(1);
+      expect(text).toBeDefined();
+      expect(text?.match(/📋 \*\*Inherited Plan/g)).toHaveLength(1);
     });
 
     it('should not inject plan when no prior cline-plan message exists', () => {

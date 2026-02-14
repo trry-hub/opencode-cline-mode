@@ -28,35 +28,17 @@ You are permitted to make file changes, run shell commands, and utilize your ars
 
 export function transformMessages(output: TransformOutput, options?: TransformOptions): void {
   if (!output?.messages || output.messages.length === 0) {
-    console.log('[ClineMode] transformMessages: No messages or empty array');
     return;
   }
 
   const lastMessage = output.messages[output.messages.length - 1];
 
-  console.log('[ClineMode] transformMessages: Last message structure', {
-    hasInfo: !!lastMessage?.info,
-    hasParts: !!lastMessage?.parts,
-    partsIsArray: Array.isArray(lastMessage?.parts),
-    partsLength: lastMessage?.parts?.length,
-    role: lastMessage?.info?.role,
-    agent: lastMessage?.info?.agent,
-  });
-
   if (!lastMessage?.info || !Array.isArray(lastMessage?.parts)) {
-    console.log('[ClineMode] transformMessages: Last message invalid - returning early');
     return;
   }
 
   const currentAgent = lastMessage.info.agent;
   const isFirstActMessage = currentAgent === 'cline-act' && output.messages.length >= 2;
-
-  console.log('[ClineMode] transformMessages: Agent analysis', {
-    currentAgent,
-    isFirstActMessage,
-    totalMessages: output.messages.length,
-    enableExecuteCommand: options?.enableExecuteCommand,
-  });
 
   let lastPlanContent: string | null = null;
   let planMessageToModify: { message: (typeof output.messages)[0]; index: number } | null = null;
@@ -70,14 +52,11 @@ export function transformMessages(output: TransformOutput, options?: TransformOp
     }
 
     if (msg.info.role === 'assistant' && msg.info.agent === 'cline-plan') {
-      console.log('[ClineMode] Found cline-plan message at index', i);
-
       const hasReminder = msg.parts.some(
         part => part?.type === 'text' && part.text?.includes('<system-reminder>')
       );
 
       if (hasReminder) {
-        console.log('[ClineMode] Message has system-reminder');
         hasEncounteredReminder = true;
       }
 
@@ -86,12 +65,6 @@ export function transformMessages(output: TransformOutput, options?: TransformOp
 
         if (lastTextPartIndex !== -1 && msg.parts[lastTextPartIndex]?.text) {
           planMessageToModify = { message: msg, index: i };
-          console.log(
-            '[ClineMode] Found plan message to modify at index',
-            i,
-            'part',
-            lastTextPartIndex
-          );
         }
       }
 
@@ -102,26 +75,18 @@ export function transformMessages(output: TransformOutput, options?: TransformOp
 
       if (textParts.trim() && lastPlanContent === null) {
         lastPlanContent = textParts;
-        console.log('[ClineMode] Captured plan content, length:', textParts.length);
       }
     }
   }
 
   if (planMessageToModify && !hasEncounteredReminder) {
-    console.log('[ClineMode] Injecting plan completion block');
     const { message } = planMessageToModify;
     const lastTextPartIndex = message.parts.findLastIndex(part => part?.type === 'text');
 
     if (lastTextPartIndex !== -1 && message.parts[lastTextPartIndex]?.text) {
       const completionBlock = getPlanCompletionBlock(options?.enableExecuteCommand ?? true);
       message.parts[lastTextPartIndex].text! += completionBlock;
-      console.log('[ClineMode] Plan completion block added');
     }
-  } else {
-    console.log('[ClineMode] Skipped plan completion injection', {
-      hasPlanMessage: !!planMessageToModify,
-      hasEncounteredReminder,
-    });
   }
 
   if (isFirstActMessage && lastPlanContent) {
