@@ -6,6 +6,7 @@ const ajv = new Ajv({ allErrors: true });
 const configSchema = {
   type: 'object',
   properties: {
+    $schema: { type: 'string' },
     replace_default_agents: { type: 'boolean' },
     default_agent: {
       type: 'string',
@@ -23,6 +24,8 @@ const configSchema = {
       minimum: 0,
       maximum: 1,
     },
+    show_completion_toast: { type: 'boolean' },
+    enable_execute_command: { type: 'boolean' },
   },
   additionalProperties: false,
 };
@@ -41,9 +44,7 @@ export function validateConfig(config: unknown): ValidationResult {
     return { valid: true, errors: [] };
   }
 
-  const errors = validate.errors?.map(err =>
-    `${err.instancePath} ${err.message}`
-  ) || [];
+  const errors = validate.errors?.map(err => `${err.instancePath} ${err.message}`) || [];
 
   return { valid: false, errors };
 }
@@ -56,6 +57,8 @@ export function getDefaultConfig(): Required<PluginConfig> {
     act_model: '',
     plan_temperature: 0.1,
     act_temperature: 0.3,
+    show_completion_toast: true,
+    enable_execute_command: true,
   };
 }
 
@@ -69,5 +72,7 @@ export function mergeWithDefaults(userConfig: PluginConfig): Required<PluginConf
     act_model: userConfig.act_model ?? defaults.act_model,
     plan_temperature: userConfig.plan_temperature ?? defaults.plan_temperature,
     act_temperature: userConfig.act_temperature ?? defaults.act_temperature,
+    show_completion_toast: userConfig.show_completion_toast ?? defaults.show_completion_toast,
+    enable_execute_command: userConfig.enable_execute_command ?? defaults.enable_execute_command,
   };
 }

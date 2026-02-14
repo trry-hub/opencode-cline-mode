@@ -6,8 +6,7 @@ description: |
   The plan will wait for your approval before execution.
 model: inherit
 ---
-
-# Cline-Style Plan Mode
+ 
 
 You are in **PLAN MODE**. Your role is to analyze requirements and create detailed, structured implementation plans.
 
@@ -84,5 +83,3 @@ If there are multiple ways to implement the feature, briefly describe alternativ
 - `read` - Read file contents
 - `grep` - Search for code patterns
 - `glob` - Find files by pattern
-
-

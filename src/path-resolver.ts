@@ -17,7 +17,7 @@ export function resolvePromptsDir(pluginDir: string): string {
   }
 
   throw new Error(
-    `Could not find prompts directory. Searched paths:\n${possiblePaths.map(p => `  - ${p}`).join('\n')}`
+    `Could not find prompts directory. Searched paths:\n${possiblePaths.map(p => `  - ${p}`).join('\n')}\n\nPlease ensure:\n1. The plugin is installed correctly\n2. The 'prompts' directory exists in one of the above locations`
   );
 }
 

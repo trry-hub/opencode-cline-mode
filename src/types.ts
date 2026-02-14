@@ -14,6 +14,10 @@ export interface PluginConfig {
   plan_temperature?: number;
   /** Temperature for act mode */
   act_temperature?: number;
+  /** Show toast notification when plan is complete */
+  show_completion_toast?: boolean;
+  /** Enable /execute-plan command */
+  enable_execute_command?: boolean;
 }
 
 /**
@@ -49,6 +53,7 @@ export interface PluginContext {
   client: {
     app: {
       log: (params: { body: LogBody }) => Promise<void>;
+      event: (params: { body: EventBody }) => Promise<void>;
     };
   };
   project: {
@@ -67,6 +72,11 @@ export interface LogBody {
   level: 'info' | 'warn' | 'error' | 'debug';
   message: string;
   extra?: Record<string, unknown>;
+}
+
+export interface EventBody {
+  type: string;
+  properties: Record<string, unknown>;
 }
 
 /**
@@ -101,4 +111,27 @@ export interface TransformOutput {
 export interface TransformParams {
   input: unknown;
   output: TransformOutput;
+}
+
+/**
+ * Type guard for TransformOutput
+ */
+export function isTransformOutput(value: unknown): value is TransformOutput {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const obj = value as Record<string, unknown>;
+
+  if (!('messages' in obj) || !Array.isArray(obj.messages)) {
+    return false;
+  }
+
+  return obj.messages.every((msg: unknown) => {
+    if (typeof msg !== 'object' || msg === null) {
+      return false;
+    }
+    const message = msg as Record<string, unknown>;
+    return 'info' in message && 'parts' in message && Array.isArray(message.parts);
+  });
 }

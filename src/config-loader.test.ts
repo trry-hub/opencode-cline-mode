@@ -21,10 +21,13 @@ describe('config-loader', () => {
       await mkdir(configDir);
       const configPath = join(configDir, 'opencode-cline-mode.json');
 
-      await writeFile(configPath, JSON.stringify({
-        replace_default_agents: false,
-        default_agent: 'cline-act',
-      }));
+      await writeFile(
+        configPath,
+        JSON.stringify({
+          replace_default_agents: false,
+          default_agent: 'cline-act',
+        })
+      );
 
       const config = loadPluginConfig(tempDir);
 

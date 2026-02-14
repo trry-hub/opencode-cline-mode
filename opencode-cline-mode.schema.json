@@ -20,6 +20,30 @@
     "act_model": {
       "type": "string",
       "description": "Model to use for cline-act agent. If not specified, uses the default model from opencode.json"
+    },
+    "plan_temperature": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.1,
+      "description": "Temperature for plan mode (lower = more focused)"
+    },
+    "act_temperature": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.3,
+      "description": "Temperature for act mode"
+    },
+    "show_completion_toast": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show toast notification when plan is complete"
+    },
+    "enable_execute_command": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable /execute-plan command for quick switching from plan to act mode"
     }
   }
 }

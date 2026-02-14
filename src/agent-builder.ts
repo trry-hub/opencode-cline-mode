@@ -12,12 +12,14 @@ export function buildClineAgents(params: BuildAgentsParams): Record<string, Agen
 
   const planModel = config.plan_model || defaultModel;
   const actModel = config.act_model || defaultModel;
+  const planTemperature = config.plan_temperature ?? 0.1;
+  const actTemperature = config.act_temperature ?? 0.3;
 
   return {
     'cline-plan': {
       mode: 'primary',
       model: planModel,
-      temperature: config.plan_temperature,
+      temperature: planTemperature,
       description: 'Cline Plan Mode - Analysis and planning without code changes',
       tools: {
         bash: false,
@@ -29,7 +31,7 @@ export function buildClineAgents(params: BuildAgentsParams): Record<string, Agen
     'cline-act': {
       mode: 'primary',
       model: actModel,
-      temperature: config.act_temperature,
+      temperature: actTemperature,
       description: 'Cline Act Mode - Execute plans with full tool access',
       tools: {
         bash: true,
