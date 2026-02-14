@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2026-02-14
+
+### Fixed
+- **Agent Replacement**: Simplified replacement logic - now completely excludes original agents instead of trying to hide them
+- Removed `hidden: true` approach which may not be supported by OpenCode
+- Plugin now only provides `cline-plan` and `cline-act` when `replace_default_agents: true`
+
+## [2.0.2] - 2026-02-14
+
+### Fixed
+- **Agent Hiding**: Fixed issue where native `plan` and `build` agents were still visible
+- Native agents are now explicitly marked as `hidden: true` and `mode: 'subagent'`
+- This ensures only `cline-plan` and `cline-act` are visible when `replace_default_agents: true`
+
+### Changed
+- `src/index.ts`: Added explicit agent hiding logic instead of just replacing config
+
+## [2.0.1] - 2026-02-14
+
+### Fixed
+- Minor fixes and improvements
+
 ## [2.0.0] - 2026-02-14
 
 ### Added

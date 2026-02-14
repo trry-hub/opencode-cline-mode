@@ -77,7 +77,8 @@ export default async function ClineModePlugin(context: PluginContext) {
         const originalConfigAgent = config.agent || {};
 
         if (pluginConfig.replace_default_agents) {
-          // Completely replace default agents with only Cline agents
+          // Completely replace default agents - do NOT include them at all
+          // OpenCode will use only what we provide here
           config.agent = { ...clineAgents };
 
           config.default_agent = pluginConfig.default_agent || 'cline-plan';
@@ -86,8 +87,9 @@ export default async function ClineModePlugin(context: PluginContext) {
             config.default_agent = 'cline-plan';
           }
 
-          await logger.info('Cline Mode: Default agents completely replaced with Cline agents', {
-            visibleAgents: Object.keys(clineAgents),
+          await logger.info('Cline Mode: Default agents replaced, only Cline agents', {
+            originalAgents: Object.keys(originalConfigAgent),
+            clineAgents: Object.keys(clineAgents),
             defaultAgent: config.default_agent,
           });
         } else {
