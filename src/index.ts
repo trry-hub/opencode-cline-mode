@@ -85,24 +85,9 @@ export default async function ClineModePlugin(context: PluginContext) {
       },
 
       'experimental.chat.messages.transform': async (_input: unknown, output: unknown) => {
-        await logger.debug('Transform hook called', {
-          hasInput: _input !== undefined,
-          hasOutput: output !== undefined,
-          outputType: output?.constructor?.name,
-        });
-
         if (isTransformOutput(output)) {
-          await logger.debug('Transform output structure valid', {
-            messagesCount: output.messages?.length,
-            enableExecuteCommand: pluginConfig.enable_execute_command,
-          });
-
           transformMessages(output, {
             enableExecuteCommand: pluginConfig.enable_execute_command,
-          });
-
-          await logger.debug('Transform completed', {
-            messagesCount: output.messages?.length,
           });
         } else {
           await logger.warn('Invalid transform output structure', { output });
