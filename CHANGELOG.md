@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [2.1.0] - 2026-02-15
+
+### Added
+- **Plan Approval Workflow**: Complete plan approval system
+  - New `enable_plan_approval` configuration option (default: true)
+  - `/approve-plan` tool to approve plans before execution
+  - `/reject-plan` tool to reject plans with optional reason
+  - Automatic plan status tracking in `.opencode/plans/plan-status.json`
+  - Plan status management: draft → approved/rejected → in_progress → completed
+  - `/start-act` now checks approval status before switching to execution mode
+- **Enhanced Debugging**: Added comprehensive logging throughout message transformation pipeline
+  - Logs when transform hook is triggered
+  - Logs message analysis (agent type, role, message count)
+  - Logs when plan completion block is added or skipped
+  - Logs when existing system-reminder is detected
+  - Logs when plan content is injected into act messages
+- **Better Error Handling**: Added detailed warnings for edge cases
+  - Warns when no messages to transform
+  - Warns when message structure is invalid
+  - Warns when completion block cannot be added
+
+### Fixed
+- **Case Sensitivity**: Fixed agent name comparison to be case-insensitive
+  - Handles both "cline-plan" and "Cline-Plan" formats
+  - Fixes issue where OpenCode displays agent names with title case
+  - All agent name comparisons now use `.toLowerCase()`
+- **Documentation Consistency**: Updated all references from `/execute-plan` to `/start-act`
+  - Fixed README.md feature list
+  - Fixed configuration table description
+  - Fixed Quick Execute Command section
+  - All documentation now correctly references the actual tool name
+
+### Changed
+- **Message Transformer**: Now accepts optional logger parameter for debugging
+- **Message Transformer**: Now accepts `enablePlanApproval` parameter
+- **Test Coverage**: Enhanced tests to verify logging behavior and edge cases
+- **Configuration Schema**: Added `enable_plan_approval` to schema file
+
 ## [2.0.3] - 2026-02-14
 
 ### Fixed

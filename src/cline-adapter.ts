@@ -26,8 +26,8 @@ export interface AdaptedPrompts {
  * Coordinates fetching, caching, and adapting Cline prompts for OpenCode
  */
 export class ClineAdapter {
-  private cache: ClineCache;
-  private fetcher: ClineFetcher;
+  private cache: ClineCache | null = null;
+  private fetcher: ClineFetcher | null = null;
   private options: ClineAdapterOptions;
   private logger: Logger | null;
 
@@ -35,12 +35,15 @@ export class ClineAdapter {
     this.options = options;
     this.logger = options.logger || null;
 
-    this.cache = new ClineCache({
-      cacheDir: options.cacheDir,
-      ttl: options.cacheTtl,
-    });
+    // 只在非 local 模式下初始化 cache 和 fetcher
+    if (options.promptSource !== 'local') {
+      this.cache = new ClineCache({
+        cacheDir: options.cacheDir,
+        ttl: options.cacheTtl,
+      });
 
-    this.fetcher = new ClineFetcher(options.logger);
+      this.fetcher = new ClineFetcher(options.logger);
+    }
   }
 
   /**
@@ -48,7 +51,7 @@ export class ClineAdapter {
    */
   private async loadLocalPrompts(): Promise<{ planPrompt: string; actPrompt: string }> {
     if (this.logger) {
-      await this.logger.info('Loading prompts from local files');
+      this.logger.info('Loading prompts from local files');
     }
 
     try {
@@ -63,7 +66,7 @@ export class ClineAdapter {
       return { planPrompt, actPrompt };
     } catch (error) {
       if (this.logger) {
-        await this.logger.error('Failed to load local prompts', {
+        this.logger.error('Failed to load local prompts', {
           error: error instanceof Error ? error.message : String(error),
         });
       }
@@ -77,8 +80,12 @@ export class ClineAdapter {
    * Fetch prompts from GitHub
    */
   private async fetchFromGitHub(): Promise<{ planPrompt: string; actPrompt: string }> {
+    if (!this.fetcher || !this.cache) {
+      throw new Error('Fetcher or cache not initialized for non-local mode');
+    }
+
     if (this.logger) {
-      await this.logger.info('Fetching prompts from GitHub', {
+      this.logger.info('Fetching prompts from GitHub', {
         version: this.options.clineVersion,
       });
     }
@@ -93,7 +100,6 @@ export class ClineAdapter {
       this.fetcher.fetchActPrompt({ version }),
     ]);
 
-    // Cache the fetched prompts
     await Promise.all([
       this.cache.set('plan', version, planPrompt),
       this.cache.set('act', version, actPrompt),
@@ -106,6 +112,10 @@ export class ClineAdapter {
    * Try to load from cache
    */
   private async loadFromCache(): Promise<{ planPrompt: string; actPrompt: string } | null> {
+    if (!this.fetcher || !this.cache) {
+      return null;
+    }
+
     const version =
       this.options.clineVersion === 'latest'
         ? await this.fetcher.getLatestVersion()
@@ -118,7 +128,7 @@ export class ClineAdapter {
 
     if (planPrompt && actPrompt) {
       if (this.logger) {
-        await this.logger.info('Loaded prompts from cache', { version });
+        this.logger.info('Loaded prompts from cache', { version });
       }
       return { planPrompt, actPrompt };
     }
@@ -155,7 +165,7 @@ export class ClineAdapter {
           } catch (error) {
             if (this.options.fallbackToLocal) {
               if (this.logger) {
-                await this.logger.warn('GitHub fetch failed, falling back to local', {
+                this.logger.warn('GitHub fetch failed, falling back to local', {
                   error: error instanceof Error ? error.message : String(error),
                 });
               }
@@ -188,7 +198,7 @@ export class ClineAdapter {
             } catch (error) {
               if (this.options.fallbackToLocal) {
                 if (this.logger) {
-                  await this.logger.warn('GitHub fetch failed, falling back to local', {
+                  this.logger.warn('GitHub fetch failed, falling back to local', {
                     error: error instanceof Error ? error.message : String(error),
                   });
                 }
@@ -210,7 +220,7 @@ export class ClineAdapter {
       actPrompt = adaptPromptToolNames(actPrompt);
 
       if (this.logger) {
-        await this.logger.info('Prompts loaded and adapted', { source });
+        this.logger.info('Prompts loaded and adapted', { source });
       }
 
       return {
@@ -220,7 +230,7 @@ export class ClineAdapter {
       };
     } catch (error) {
       if (this.logger) {
-        await this.logger.error('Failed to get prompts', {
+        this.logger.error('Failed to get prompts', {
           error: error instanceof Error ? error.message : String(error),
         });
       }
@@ -232,16 +242,18 @@ export class ClineAdapter {
    * Clear cache
    */
   async clearCache(): Promise<void> {
-    await this.cache.clear();
+    if (this.cache) {
+      await this.cache.clear();
+    }
     if (this.logger) {
-      await this.logger.info('Cache cleared');
+      this.logger.info('Cache cleared');
     }
   }
 
-  /**
-   * Get cache statistics
-   */
   async getCacheStats() {
+    if (!this.cache) {
+      return { totalEntries: 0, validEntries: 0, expiredEntries: 0 };
+    }
     return await this.cache.getStats();
   }
 }

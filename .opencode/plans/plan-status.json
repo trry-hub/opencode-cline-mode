@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "currentPlan": "ses_39e08c1a7ffe7VoTrlfEoPJhaA",
+  "plans": {
+    "ses_39e08c1a7ffe7VoTrlfEoPJhaA": {
+      "id": "ses_39e08c1a7ffe7VoTrlfEoPJhaA",
+      "createdAt": "2026-02-15T15:41:59.267Z",
+      "updatedAt": "2026-02-15T15:41:59.267Z",
+      "status": "draft"
+    },
+    "ses_39e0614e6ffehNQADaz4OwecbR": {
+      "id": "ses_39e0614e6ffehNQADaz4OwecbR",
+      "createdAt": "2026-02-15T15:44:54.598Z",
+      "updatedAt": "2026-02-15T15:44:54.598Z",
+      "status": "draft"
+    },
+    "ses_39c23c7ffffeEr5OiDBQ2xx809": {
+      "id": "ses_39c23c7ffffeEr5OiDBQ2xx809",
+      "createdAt": "2026-02-16T00:31:42.642Z",
+      "updatedAt": "2026-02-16T00:31:42.642Z",
+      "status": "draft"
+    }
+  }
+}

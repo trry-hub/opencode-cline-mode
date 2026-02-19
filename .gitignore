@@ -28,3 +28,4 @@ build/
 
 # Cline cache
 .cline-cache/
+.sisyphus/

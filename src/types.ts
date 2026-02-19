@@ -18,6 +18,8 @@ export interface PluginConfig {
   show_completion_toast?: boolean;
   /** Enable /start-act command */
   enable_execute_command?: boolean;
+  /** Enable plan approval workflow */
+  enable_plan_approval?: boolean;
   /** Prompt source: 'local' (use local files), 'github' (fetch from Cline repo), 'auto' (cache -> github -> local) */
   prompt_source?: 'local' | 'github' | 'auto';
   /** Cline version to use: 'latest' or specific version/branch */
@@ -138,6 +140,11 @@ export function isTransformOutput(value: unknown): value is TransformOutput {
 
   if (!('messages' in obj) || !Array.isArray(obj.messages)) {
     return false;
+  }
+
+  // Allow empty messages array
+  if (obj.messages.length === 0) {
+    return true;
   }
 
   return obj.messages.every((msg: unknown) => {

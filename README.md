@@ -14,7 +14,7 @@ A plugin for [OpenCode](https://opencode.ai) that brings Cline-style structured 
 - 🔗 **Automatic Plan Inheritance** - Plans are automatically passed from plan mode to act mode (no copy-paste needed!)
 - 🔄 **Clean Agent List** - Only shows `cline-plan` and `cline-act`, removes default agents
 - 📝 **Structured Output** - Clear, actionable plans with risk assessment and verification steps
-- 🚀 **Quick Execute Command** - Type `/execute-plan` to quickly switch from plan to act mode
+- 🚀 **Quick Execute Command** - Type `/start-act` to quickly switch from plan to act mode
 - 🌐 **Dynamic Cline Integration** - Fetch latest prompts from Cline's official repository (NEW in v2.0!)
 - 💾 **Smart Caching** - Cache prompts locally to reduce network requests (NEW in v2.0!)
 - 🔧 **Flexible Configuration** - Choose between local, GitHub, or auto mode (NEW in v2.0!)
@@ -128,6 +128,27 @@ In the OpenCode TUI:
 3. Select the agent you want to use
 4. **New in v1.2.0**: When switching from `cline-plan` to `cline-act`, your plan is **automatically inherited** - no need to copy and paste!
 
+### Plan Approval Workflow
+
+When `enable_plan_approval` is enabled (default), plans must be approved before execution:
+
+1. Create a plan using `cline-plan` agent
+2. Review the plan
+3. Approve it: `/approve-plan`
+4. Execute it: `/start-act`
+
+Available commands:
+- `/approve-plan` - Approve the current plan
+- `/reject-plan` - Reject the current plan with optional reason
+- `/start-act` - Switch to execution mode (requires approval if enabled)
+
+To disable approval workflow:
+```json
+{
+  "enable_plan_approval": false
+}
+```
+
 ### Typical Workflow
 
 1. **Start with Planning** (`cline-plan`):
@@ -171,7 +192,8 @@ Create `~/.config/opencode/opencode-cline-mode.json` or `.opencode/opencode-clin
 | `plan_temperature` | number | `0.1` | Temperature for plan mode (lower = more focused, 0-1) |
 | `act_temperature` | number | `0.3` | Temperature for act mode (0-1) |
 | `show_completion_toast` | boolean | `true` | Show toast notification when plan is complete |
-| `enable_execute_command` | boolean | `true` | Enable `/execute-plan` command for quick switching from plan to act mode |
+| `enable_execute_command` | boolean | `true` | Enable `/start-act` command for quick switching from plan to act mode |
+| `enable_plan_approval` | boolean | `true` | Enable plan approval workflow. Plans must be approved using `/approve-plan` before execution |
 | `prompt_source` | string | `"auto"` | Prompt source: `"local"` (use local files), `"github"` (fetch from Cline repo), `"auto"` (cache → github → local) |
 | `cline_version` | string | `"latest"` | Cline version to use: `"latest"` or specific version/branch (e.g., `"main"`, `"v1.2.3"`) |
 | `cache_ttl` | number | `24` | Cache time-to-live in hours |
@@ -261,17 +283,17 @@ After planning is complete, you'll see a prompt with options:
 
 **📋 Plan Complete!**
 
-✅ **Quick Execute**: Use `/execute-plan` **tool** to switch to `cline-act`
+✅ **Quick Execute**: Use `/start-act` **tool** to switch to `cline-act`
 ✏️ **Modify**: Tell me which step to change
 ❌ **Cancel**: Type "cancel" to abort
 
-**Important**: Use the `/execute-plan` **tool** (not a command) by:
-- Typing `/execute-plan` in chat
-- Or pressing Tab and typing `/execute-plan`
+**Important**: Use the `/start-act` **tool** (not a command) by:
+- Typing `/start-act` in chat
+- Or pressing Tab and typing `/start-act`
 
 #### Example: Disable Quick Command
 
-If you prefer not to have the `/execute-plan` command:
+If you prefer not to have the `/start-act` command:
 
 ```json
 {

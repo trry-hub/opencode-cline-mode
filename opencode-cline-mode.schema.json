@@ -45,6 +45,11 @@
       "default": true,
       "description": "Enable /start-act command for quick switching from plan to act mode"
     },
+    "enable_plan_approval": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable plan approval workflow. When enabled, plans must be approved using /approve-plan before execution."
+    },
     "prompt_source": {
       "type": "string",
       "enum": ["local", "github", "auto"],
