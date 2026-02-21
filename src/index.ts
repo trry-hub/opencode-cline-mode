@@ -1,5 +1,6 @@
 import { join } from 'path';
 import { homedir } from 'os';
+import { tool } from '@opencode-ai/plugin';
 import type { PluginContext, OpenCodeConfig } from './types';
 import { isTransformOutput } from './types';
 import { Logger } from './logger';
@@ -8,7 +9,6 @@ import { loadPluginConfig } from './config-loader';
 import { buildClineAgents } from './agent-builder';
 import { transformMessages } from './message-transformer';
 import { ClineAdapter } from './cline-adapter';
-import { ApprovalGate } from './approval-gate';
 
 export default async function ClineModePlugin(context: PluginContext) {
   const { client, project, directory, worktree } = context;
@@ -24,9 +24,6 @@ export default async function ClineModePlugin(context: PluginContext) {
 
     const pluginConfig = loadPluginConfig(directory);
     logger.info('Plugin config loaded', { config: pluginConfig });
-
-    const plansDir = join(directory, '.opencode', 'plans');
-    const approvalGate = new ApprovalGate({ plansDir, logger });
 
     // Initialize Cline adapter with global cache directory
     const cacheDir = join(homedir(), '.config/opencode/.cline-cache');
@@ -142,7 +139,6 @@ export default async function ClineModePlugin(context: PluginContext) {
           });
           transformMessages(output, {
             enableExecuteCommand: pluginConfig.enable_execute_command,
-            enablePlanApproval: pluginConfig.enable_plan_approval,
             logger,
           });
         } else {
@@ -156,11 +152,6 @@ export default async function ClineModePlugin(context: PluginContext) {
       'chat.message': async (input: { agent?: string; sessionID?: string }) => {
         const { agent, sessionID } = input;
 
-        if (agent?.toLowerCase() === 'cline-plan' && sessionID) {
-          await approvalGate.createPlanStatus(sessionID);
-          logger.info('Plan status created', { sessionID });
-        }
-
         if (agent?.toLowerCase() === 'cline-plan' || agent?.toLowerCase() === 'cline-act') {
           logger.info(`${agent} agent activated`, { sessionID, agent });
         }
@@ -169,25 +160,11 @@ export default async function ClineModePlugin(context: PluginContext) {
       tool: {
         ...(pluginConfig.enable_execute_command
           ? {
-              'start-act': {
+              'start-act': tool({
                 description: 'Switch to cline-act agent and start execution',
-                parameters: {
-                  type: 'object',
-                  properties: {
-                    plan_id: {
-                      type: 'string',
-                      description: 'Plan ID (session ID from cline-plan)',
-                    },
-                  },
-                },
-                execute: async (params: { plan_id?: string }) => {
+                args: {},
+                async execute() {
                   try {
-                    const planId = params.plan_id || (await approvalGate.getCurrentPlanId());
-
-                    if (pluginConfig.enable_plan_approval && planId) {
-                      await approvalGate.requireApproval(planId);
-                    }
-
                     await client.app.event({
                       body: {
                         type: 'tui.command.execute',
@@ -197,113 +174,18 @@ export default async function ClineModePlugin(context: PluginContext) {
                       },
                     });
 
-                    logger.info('Start act command triggered', { planId });
+                    logger.info('Start act command triggered');
 
-                    return {
-                      output: '✅ Switching to cline-act agent...',
-                    };
+                    return '✅ Switching to cline-act agent...';
                   } catch (error) {
                     logger.error('Failed to start act command', {
                       error: error instanceof Error ? error.message : String(error),
                     });
 
-                    return {
-                      output: `❌ ${error instanceof Error ? error.message : String(error)}`,
-                    };
+                    return `❌ ${error instanceof Error ? error.message : String(error)}`;
                   }
                 },
-              },
-            }
-          : {}),
-
-        ...(pluginConfig.enable_plan_approval
-          ? {
-              'approve-plan': {
-                description: 'Approve the current plan to allow execution',
-                parameters: {
-                  type: 'object',
-                  properties: {
-                    plan_id: {
-                      type: 'string',
-                      description:
-                        'Plan ID to approve (optional, uses current plan if not provided)',
-                    },
-                  },
-                },
-                execute: async (params: { plan_id?: string }) => {
-                  try {
-                    const planId = params.plan_id || (await approvalGate.getCurrentPlanId());
-
-                    if (!planId) {
-                      return {
-                        output:
-                          '❌ No plan found. Please create a plan first using cline-plan agent.',
-                      };
-                    }
-
-                    await approvalGate.approve(planId);
-
-                    logger.info('Plan approved', { planId });
-
-                    return {
-                      output: `✅ Plan '${planId}' approved successfully. You can now use /start-act to execute it.`,
-                    };
-                  } catch (error) {
-                    logger.error('Failed to approve plan', {
-                      error: error instanceof Error ? error.message : String(error),
-                    });
-
-                    return {
-                      output: `❌ Failed to approve plan: ${error instanceof Error ? error.message : String(error)}`,
-                    };
-                  }
-                },
-              },
-
-              'reject-plan': {
-                description: 'Reject the current plan',
-                parameters: {
-                  type: 'object',
-                  properties: {
-                    plan_id: {
-                      type: 'string',
-                      description:
-                        'Plan ID to reject (optional, uses current plan if not provided)',
-                    },
-                    reason: {
-                      type: 'string',
-                      description: 'Reason for rejection',
-                    },
-                  },
-                },
-                execute: async (params: { plan_id?: string; reason?: string }) => {
-                  try {
-                    const planId = params.plan_id || (await approvalGate.getCurrentPlanId());
-
-                    if (!planId) {
-                      return {
-                        output: '❌ No plan found.',
-                      };
-                    }
-
-                    await approvalGate.reject(planId, params.reason || 'No reason provided');
-
-                    logger.info('Plan rejected', { planId });
-
-                    return {
-                      output: `❌ Plan '${planId}' rejected. Please modify the plan and re-approve it.`,
-                    };
-                  } catch (error) {
-                    logger.error('Failed to reject plan', {
-                      error: error instanceof Error ? error.message : String(error),
-                    });
-
-                    return {
-                      output: `❌ Failed to reject plan: ${error instanceof Error ? error.message : String(error)}`,
-                    };
-                  }
-                },
-              },
+              }),
             }
           : {}),
       },

@@ -12,8 +12,8 @@ const createMockLogger = (): Logger =>
   }) as unknown as Logger;
 
 describe('message-transformer-enhanced', () => {
-  describe('Approval Feature Integration', () => {
-    it('should include approval hint when enabled', () => {
+  describe('Plan Completion Block (Cline-aligned)', () => {
+    it('should include plan completion block with execute hint', () => {
       const output: TransformOutput = {
         messages: [
           {
@@ -24,14 +24,15 @@ describe('message-transformer-enhanced', () => {
       };
 
       const logger = createMockLogger();
-      transformMessages(output, { logger, enablePlanApproval: true });
+      transformMessages(output, { logger, enableExecuteCommand: true });
 
       const text = output.messages[0].parts[0].text;
-      expect(text).toContain('/approve-plan');
-      expect(text).toContain('Approval Required');
+      expect(text).toContain('Plan Complete');
+      expect(text).toContain('/start-act');
+      expect(text).not.toContain('/approve-plan');
     });
 
-    it('should not include approval hint when disabled', () => {
+    it('should not include approval hint (removed for Cline alignment)', () => {
       const output: TransformOutput = {
         messages: [
           {
@@ -42,14 +43,14 @@ describe('message-transformer-enhanced', () => {
       };
 
       const logger = createMockLogger();
-      transformMessages(output, { logger, enablePlanApproval: false });
+      transformMessages(output, { logger, enableExecuteCommand: true });
 
       const text = output.messages[0].parts[0].text;
       expect(text).not.toContain('/approve-plan');
       expect(text).not.toContain('Approval Required');
     });
 
-    it('should include approval hint by default', () => {
+    it('should show Tab hint when execute command is disabled', () => {
       const output: TransformOutput = {
         messages: [
           {
@@ -60,10 +61,10 @@ describe('message-transformer-enhanced', () => {
       };
 
       const logger = createMockLogger();
-      transformMessages(output, { logger });
+      transformMessages(output, { logger, enableExecuteCommand: false });
 
       const text = output.messages[0].parts[0].text;
-      expect(text).toContain('/approve-plan');
+      expect(text).toContain('Press Tab to switch to cline-act');
     });
   });
 });

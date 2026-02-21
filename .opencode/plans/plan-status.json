@@ -5,8 +5,12 @@
     "ses_39e08c1a7ffe7VoTrlfEoPJhaA": {
       "id": "ses_39e08c1a7ffe7VoTrlfEoPJhaA",
       "createdAt": "2026-02-15T15:41:59.267Z",
-      "updatedAt": "2026-02-15T15:41:59.267Z",
-      "status": "draft"
+      "updatedAt": "2026-02-21T17:11:32.086Z",
+      "status": "rejected",
+      "approvedAt": "2026-02-21T17:11:22.188Z",
+      "approvedBy": "user",
+      "rejectedAt": "2026-02-21T17:11:32.086Z",
+      "rejectedReason": "No reason provided"
     },
     "ses_39e0614e6ffehNQADaz4OwecbR": {
       "id": "ses_39e0614e6ffehNQADaz4OwecbR",
@@ -18,6 +22,42 @@
       "id": "ses_39c23c7ffffeEr5OiDBQ2xx809",
       "createdAt": "2026-02-16T00:31:42.642Z",
       "updatedAt": "2026-02-16T00:31:42.642Z",
+      "status": "draft"
+    },
+    "ses_38947c684ffeq2jd436Xtr6diL": {
+      "id": "ses_38947c684ffeq2jd436Xtr6diL",
+      "createdAt": "2026-02-19T16:34:27.234Z",
+      "updatedAt": "2026-02-19T16:34:27.234Z",
+      "status": "draft"
+    },
+    "ses_37f4a0ec6ffe0FWaZcyfbac6O2": {
+      "id": "ses_37f4a0ec6ffe0FWaZcyfbac6O2",
+      "createdAt": "2026-02-21T14:58:53.385Z",
+      "updatedAt": "2026-02-21T14:58:53.385Z",
+      "status": "draft"
+    },
+    "ses_37f493800ffeeAyWqQPbIdY9df": {
+      "id": "ses_37f493800ffeeAyWqQPbIdY9df",
+      "createdAt": "2026-02-21T17:04:55.435Z",
+      "updatedAt": "2026-02-21T17:04:55.435Z",
+      "status": "draft"
+    },
+    "ses_37f2300f5ffe1oWK3t0Gvhia8S": {
+      "id": "ses_37f2300f5ffe1oWK3t0Gvhia8S",
+      "createdAt": "2026-02-21T15:41:32.821Z",
+      "updatedAt": "2026-02-21T15:41:32.821Z",
+      "status": "draft"
+    },
+    "ses_37ebf79cdffeg3N8SopbXoCrXX": {
+      "id": "ses_37ebf79cdffeg3N8SopbXoCrXX",
+      "createdAt": "2026-02-21T17:35:44.147Z",
+      "updatedAt": "2026-02-21T17:35:44.147Z",
+      "status": "draft"
+    },
+    "ses_37eb375faffe5RpgigTLS7T1j3": {
+      "id": "ses_37eb375faffe5RpgigTLS7T1j3",
+      "createdAt": "2026-02-21T17:43:22.894Z",
+      "updatedAt": "2026-02-21T17:43:22.894Z",
       "status": "draft"
     }
   }

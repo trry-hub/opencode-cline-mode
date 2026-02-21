@@ -40,6 +40,7 @@ export interface AgentConfig {
   model: string;
   temperature: number;
   description: string;
+  tools?: string[];
   permission?: {
     edit?: {
       '*': PermissionAction;

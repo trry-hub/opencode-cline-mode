@@ -37,6 +37,7 @@
   "files": [
     "dist/",
     "prompts/",
+    ".opencode/",
     "README.md",
     "LICENSE",
     "opencode-cline-mode.schema.json"

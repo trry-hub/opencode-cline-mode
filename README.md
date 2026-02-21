@@ -9,7 +9,7 @@ A plugin for [OpenCode](https://opencode.ai) that brings Cline-style structured 
 
 ## ✨ Features
 
-- 🎯 **Plan Mode** - Analyze and create detailed implementation plans without making changes
+- 🎯 **Plan Mode** - Analyze and create detailed implementation plans without making changes (pure read-only)
 - ⚡ **Act Mode** - Execute approved plans step by step with progress tracking
 - 🔗 **Automatic Plan Inheritance** - Plans are automatically passed from plan mode to act mode (no copy-paste needed!)
 - 🔄 **Clean Agent List** - Only shows `cline-plan` and `cline-act`, removes default agents
@@ -130,24 +130,14 @@ In the OpenCode TUI:
 
 ### Plan Approval Workflow
 
-When `enable_plan_approval` is enabled (default), plans must be approved before execution:
+Plans are reviewed through conversation with the AI:
 
 1. Create a plan using `cline-plan` agent
-2. Review the plan
-3. Approve it: `/approve-plan`
-4. Execute it: `/start-act`
+2. Review the plan and discuss modifications if needed
+3. When satisfied, ask the AI to switch to ACT MODE
+4. Switch to `cline-act` agent to execute the plan
 
-Available commands:
-- `/approve-plan` - Approve the current plan
-- `/reject-plan` - Reject the current plan with optional reason
-- `/start-act` - Switch to execution mode (requires approval if enabled)
-
-To disable approval workflow:
-```json
-{
-  "enable_plan_approval": false
-}
-```
+The `/start-act` command provides a quick way to switch from planning to execution mode.
 
 ### Typical Workflow
 
@@ -193,7 +183,6 @@ Create `~/.config/opencode/opencode-cline-mode.json` or `.opencode/opencode-clin
 | `act_temperature` | number | `0.3` | Temperature for act mode (0-1) |
 | `show_completion_toast` | boolean | `true` | Show toast notification when plan is complete |
 | `enable_execute_command` | boolean | `true` | Enable `/start-act` command for quick switching from plan to act mode |
-| `enable_plan_approval` | boolean | `true` | Enable plan approval workflow. Plans must be approved using `/approve-plan` before execution |
 | `prompt_source` | string | `"auto"` | Prompt source: `"local"` (use local files), `"github"` (fetch from Cline repo), `"auto"` (cache → github → local) |
 | `cline_version` | string | `"latest"` | Cline version to use: `"latest"` or specific version/branch (e.g., `"main"`, `"v1.2.3"`) |
 | `cache_ttl` | number | `24` | Cache time-to-live in hours |
@@ -289,7 +278,7 @@ After planning is complete, you'll see a prompt with options:
 
 **Important**: Use the `/start-act` **tool** (not a command) by:
 - Typing `/start-act` in chat
-- Or pressing Tab and typing `/start-act`
+- The tool is automatically available in the project's `.opencode/tools/` directory
 
 #### Example: Disable Quick Command
 
@@ -425,6 +414,7 @@ For detailed information, please visit:
 - [GitHub Repository](https://github.com/trry-hub/opencode-cline-mode)
 - [Issue Tracker](https://github.com/trry-hub/opencode-cline-mode/issues)
 - [Changelog](CHANGELOG.md)
+- [Troubleshooting Guide](TROUBLESHOOTING.md) - 故障排查指南
 - [npm Package](https://www.npmjs.com/package/opencode-cline-mode)
 
 ## 📚 Related Projects

@@ -3,25 +3,13 @@ import type { Logger } from './logger';
 
 interface TransformOptions {
   enableExecuteCommand?: boolean;
-  enablePlanApproval?: boolean;
   logger?: Logger;
 }
 
-function getPlanCompletionBlock(
-  enableExecuteCommand: boolean,
-  enablePlanApproval: boolean
-): string {
+function getPlanCompletionBlock(enableExecuteCommand: boolean): string {
   const executeHint = enableExecuteCommand
     ? 'Call the `/start-act` tool to switch to cline-act'
     : 'Press Tab to switch to cline-act';
-
-  const approvalHint = enablePlanApproval
-    ? '\n✅ **Approve**: Call the `/approve-plan` tool to approve the plan'
-    : '';
-
-  const approvalWarning = enablePlanApproval
-    ? '\n> ⚠️ **Approval Required**: You must approve the plan using `/approve-plan` before switching to ACT MODE.'
-    : '';
 
   return `
 
@@ -29,9 +17,9 @@ function getPlanCompletionBlock(
 
 **📋 Plan Complete!**
 
-✅ **Quick Execute**: ${executeHint}${approvalHint}
+✅ **Quick Execute**: ${executeHint}
 ✏️ **Modify**: Tell me which step to change
-❌ **Cancel**: Type "cancel" to abort${approvalWarning}
+❌ **Cancel**: Type "cancel" to abort
 
 ---`;
 }
@@ -39,18 +27,18 @@ function getPlanCompletionBlock(
 export function transformMessages(output: TransformOutput, options?: TransformOptions): void {
   const logger = options?.logger;
 
-  logger?.debug('transformMessages called', {
+  logger?.info('🔍 transformMessages called', {
     messageCount: output?.messages?.length || 0,
     hasOutput: !!output,
     enableExecuteCommand: options?.enableExecuteCommand,
-    enablePlanApproval: options?.enablePlanApproval,
   });
 
   if (!output?.messages || output.messages.length === 0) {
-    logger?.warn('No messages to transform', { output });
+    logger?.warn('⚠️ No messages to transform', { output });
     return;
   }
 
+  // Log all messages for debugging
   output.messages.forEach((msg, idx) => {
     const agentName = msg.info?.agent || 'no-agent';
     const role = msg.info?.role || 'no-role';
@@ -61,7 +49,7 @@ export function transformMessages(output: TransformOutput, options?: TransformOp
         ?.map((p: MessagePart) => p.text?.substring(0, 50))
         ?.join('; ') || 'no-text';
 
-    logger?.debug(`Message ${idx} details`, {
+    logger?.info(`📝 Message ${idx} details`, {
       agent: agentName,
       role: role,
       partsCount,
@@ -74,7 +62,7 @@ export function transformMessages(output: TransformOutput, options?: TransformOp
   const lastMessage = output.messages[output.messages.length - 1];
 
   if (!lastMessage?.info || !Array.isArray(lastMessage?.parts)) {
-    logger?.warn('Invalid last message structure', {
+    logger?.warn('⚠️ Invalid last message structure', {
       hasInfo: !!lastMessage?.info,
       hasParts: Array.isArray(lastMessage?.parts),
     });
@@ -84,7 +72,7 @@ export function transformMessages(output: TransformOutput, options?: TransformOp
   const currentAgent = lastMessage.info.agent?.toLowerCase();
   const isFirstActMessage = currentAgent === 'cline-act' && output.messages.length >= 2;
 
-  logger?.debug('Message analysis', {
+  logger?.info('🎯 Message analysis', {
     currentAgent,
     isFirstActMessage,
     lastMessageRole: lastMessage.info.role,
@@ -150,46 +138,53 @@ export function transformMessages(output: TransformOutput, options?: TransformOp
     }
   }
 
-  logger?.debug('Final check before adding completion block', {
+  logger?.info('🔍 Final check before adding completion block', {
     hasPlanMessageToModify: !!planMessageToModify,
     hasEncounteredReminder,
     planMessageIndex: planMessageToModify?.index,
+    currentAgent,
+    isLastMessageFromPlan: currentAgent === 'cline-plan',
   });
 
-  if (planMessageToModify && !hasEncounteredReminder) {
-    const { message, index } = planMessageToModify;
-    const lastTextPartIndex = message.parts.findLastIndex(part => part?.type === 'text');
+  // 改进：检查当前消息是否来自 cline-plan 且是 assistant 角色
+  const shouldAddCompletionBlock =
+    currentAgent === 'cline-plan' &&
+    lastMessage.info.role === 'assistant' &&
+    !hasEncounteredReminder;
 
-    logger?.debug('Attempting to add completion block', {
-      messageIndex: index,
+  if (shouldAddCompletionBlock) {
+    const lastTextPartIndex = lastMessage.parts.findLastIndex(part => part?.type === 'text');
+
+    logger?.info('🎯 Attempting to add completion block to CURRENT message', {
       lastTextPartIndex,
-      hasText: !!message.parts[lastTextPartIndex]?.text,
+      hasText: lastTextPartIndex !== -1 && !!lastMessage.parts[lastTextPartIndex]?.text,
+      partsCount: lastMessage.parts.length,
     });
 
-    if (lastTextPartIndex !== -1 && message.parts[lastTextPartIndex]?.text) {
-      const completionBlock = getPlanCompletionBlock(
-        options?.enableExecuteCommand ?? true,
-        options?.enablePlanApproval ?? true
-      );
-      message.parts[lastTextPartIndex].text! += completionBlock;
-      logger?.info('✅ SUCCESS: Added plan completion block', {
-        messageIndex: index,
+    if (lastTextPartIndex !== -1 && lastMessage.parts[lastTextPartIndex]?.text) {
+      const completionBlock = getPlanCompletionBlock(options?.enableExecuteCommand ?? true);
+      lastMessage.parts[lastTextPartIndex].text! += completionBlock;
+      logger?.info('✅ SUCCESS: Added plan completion block to current message', {
         textPartIndex: lastTextPartIndex,
         enableExecuteCommand: options?.enableExecuteCommand ?? true,
         completionBlockLength: completionBlock.length,
       });
     } else {
       logger?.warn('❌ FAILED: Could not add completion block - no valid text part found', {
-        messageIndex: index,
         lastTextPartIndex,
-        partsLength: message.parts.length,
+        partsLength: lastMessage.parts.length,
       });
     }
   } else {
-    logger?.debug('❌ SKIPPED: Did not add completion block', {
-      hasPlanMessage: !!planMessageToModify,
+    logger?.info('⏭️ SKIPPED: Did not add completion block', {
+      currentAgent,
+      role: lastMessage.info.role,
       hasEncounteredReminder,
-      reason: !planMessageToModify ? 'no plan message found' : 'reminder already exists',
+      reason: hasEncounteredReminder
+        ? 'reminder already exists'
+        : currentAgent !== 'cline-plan'
+          ? 'not from cline-plan agent'
+          : 'not assistant role',
     });
   }
 

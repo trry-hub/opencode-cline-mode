@@ -1,0 +1,16 @@
+{
+  "$schema": "./opencode-cline-mode.schema.json",
+  "replace_default_agents": true,
+  "default_agent": "cline-plan",
+  "plan_model": null,
+  "act_model": null,
+  "plan_temperature": 0.1,
+  "act_temperature": 0.3,
+  "show_completion_toast": true,
+  "enable_execute_command": true,
+  "enable_plan_approval": true,
+  "prompt_source": "local",
+  "cline_version": "latest",
+  "cache_ttl": 24,
+  "fallback_to_local": true
+}

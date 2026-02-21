@@ -2,33 +2,24 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-describe('Plan Mode Enhanced Features', () => {
+describe('Plan Mode Features (Cline-aligned)', () => {
   const planPromptPath = join(__dirname, '../prompts/plan.md');
   const planPrompt = readFileSync(planPromptPath, 'utf-8');
 
-  it('should include deep planning mode section', () => {
-    expect(planPrompt).toContain('## Deep Planning Mode');
-    expect(planPrompt).toContain('/deep-planning');
-    expect(planPrompt).toContain('implementation_plan.md');
+  it('should be read-only - no whitelist write permissions', () => {
+    expect(planPrompt).not.toContain('Whitelist Only');
+    expect(planPrompt).not.toContain('implementation_plan.md');
+    expect(planPrompt).not.toContain('.opencode/plans/*.md');
   });
 
-  it('should define tool whitelist for plan mode', () => {
-    expect(planPrompt).toContain('## Tools Available in PLAN MODE');
-    expect(planPrompt).toContain('### Read-Only Tools (Allowed)');
-    expect(planPrompt).toContain('### Write Tools (Restricted - Whitelist Only)');
-    expect(planPrompt).toContain('implementation_plan.md');
-    expect(planPrompt).toContain('.opencode/plans/*.md');
+  it('should NOT include deep planning mode section', () => {
+    expect(planPrompt).not.toContain('## Deep Planning Mode');
+    expect(planPrompt).not.toContain('/deep-planning');
   });
 
-  it('should include approval workflow section', () => {
-    expect(planPrompt).toContain('## Plan Approval Workflow');
-    expect(planPrompt).toContain('### Step 3: Approval Required');
-    expect(planPrompt).toContain('/approve-plan');
-  });
-
-  it('should mention approval requirement in completion section', () => {
-    expect(planPrompt).toContain('**Approval Required**');
-    expect(planPrompt).toContain('/approve-plan');
+  it('should NOT include approval tools', () => {
+    expect(planPrompt).not.toContain('/approve-plan');
+    expect(planPrompt).not.toContain('/reject-plan');
   });
 
   it('should list prohibited tools', () => {
@@ -41,5 +32,10 @@ describe('Plan Mode Enhanced Features', () => {
   it('should include LSP tools in allowed list', () => {
     expect(planPrompt).toContain('lsp_*');
     expect(planPrompt).toContain('ast_grep_search');
+  });
+
+  it('should define read-only tools only', () => {
+    expect(planPrompt).toContain('## Tools Available in PLAN MODE');
+    expect(planPrompt).toContain('### Read-Only Tools (Allowed)');
   });
 });
