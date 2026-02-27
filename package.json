@@ -1,7 +1,7 @@
 {
   "name": "opencode-cline-mode",
   "version": "2.0.0",
-  "description": "Cline-style plan and act workflow for OpenCode",
+  "description": "Cline-style plan and act workflow for OpenCode - dynamically fetches latest prompts from Cline's official repository with smart caching and automatic tool name mapping",
   "main": "dist/index.js",
   "type": "module",
   "keywords": [
@@ -10,7 +10,13 @@
     "cline",
     "plan",
     "act",
-    "workflow"
+    "workflow",
+    "ai-coding",
+    "agent",
+    "planning",
+    "execution",
+    "dynamic-prompts",
+    "github-integration"
   ],
   "author": "trry",
   "license": "MIT",
@@ -18,23 +24,48 @@
     "type": "git",
     "url": "https://github.com/trry-hub/opencode-cline-mode.git"
   },
+  "bugs": {
+    "url": "https://github.com/trry-hub/opencode-cline-mode/issues"
+  },
+  "homepage": "https://github.com/trry-hub/opencode-cline-mode#readme",
   "dependencies": {
-    "@opencode-ai/plugin": "^1.1.53",
-    "@opencode-ai/sdk": "latest"
+    "@opencode-ai/plugin": "^1.1.53"
+  },
+  "peerDependencies": {
+    "opencode-ai": ">=1.0.0"
+  },
+  "files": [
+    "dist/",
+    "prompts/",
+    "README.md",
+    "LICENSE",
+    "opencode-cline-mode.schema.json"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
-    "typescript": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.55.0",
+    "@typescript-eslint/parser": "^8.55.0",
+    "ajv": "^8.17.1",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
+    "typescript-eslint": "^8.55.0",
     "vitest": "^1.6.1"
   },
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
-    "validate": "npm run typecheck && npm test"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "validate": "npm run typecheck && npm run lint && npm run format:check && npm test",
+    "prepublishOnly": "npm run validate && npm run build"
   }
 }
