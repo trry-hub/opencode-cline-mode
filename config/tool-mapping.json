@@ -1,0 +1,17 @@
+{
+  "tools": {
+    "read_file": "read",
+    "write_to_file": "write",
+    "list_files": "glob",
+    "search_files": "grep",
+    "list_code_definitions": "grep",
+    "replace_in_file": "edit",
+    "execute_command": "bash",
+    "ask_followup_question": "bash"
+  },
+  "unsupported": ["browser_action"],
+  "alternatives": {
+    "browser_action": "Use the remote-browser skill or browser-use skill for web automation",
+    "ask_followup_question": "Ask the user directly in your response and wait for their reply in the next message"
+  }
+}

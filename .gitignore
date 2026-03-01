@@ -29,3 +29,6 @@ build/
 # Cline cache
 .cline-cache/
 .sisyphus/
+
+# oxlint
+.oxlint-cache/

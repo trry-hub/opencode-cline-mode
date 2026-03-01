@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "currentPlan": "ses_35b55f1efffew4EcJuLQhGH2YQ",
+  "plans": {
+    "ses_35b55f1efffew4EcJuLQhGH2YQ": {
+      "id": "ses_35b55f1efffew4EcJuLQhGH2YQ",
+      "createdAt": "2026-02-28T14:38:00.405Z",
+      "updatedAt": "2026-02-28T15:29:29.285Z",
+      "status": "approved",
+      "approvedAt": "2026-02-28T15:29:29.285Z",
+      "approvedBy": "user"
+    },
+    "ses_35b4650c9ffe1MAEO2rK6ljE5a": {
+      "id": "ses_35b4650c9ffe1MAEO2rK6ljE5a",
+      "createdAt": "2026-02-28T15:57:59.327Z",
+      "updatedAt": "2026-02-28T15:57:59.327Z",
+      "status": "draft"
+    },
+    "ses_35af7f6f3ffe46IwubirdjDsOL": {
+      "id": "ses_35af7f6f3ffe46IwubirdjDsOL",
+      "createdAt": "2026-02-28T16:26:34.178Z",
+      "updatedAt": "2026-02-28T16:26:34.178Z",
+      "status": "draft"
+    },
+    "ses_35ae6b8bbffea2lhemdzPg9UFC": {
+      "id": "ses_35ae6b8bbffea2lhemdzPg9UFC",
+      "createdAt": "2026-02-28T16:33:43.249Z",
+      "updatedAt": "2026-02-28T16:33:43.249Z",
+      "status": "draft"
+    }
+  }
+}

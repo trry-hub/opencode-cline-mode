@@ -1,36 +1,36 @@
-import type { LogBody, PluginContext } from './types.js';
+import type { LogBody, PluginContext } from "./types.js";
 
 /**
  * Logger utility for OpenCode plugin
  */
 export class Logger {
-  private client: PluginContext['client'];
-  private service: string = 'opencode-cline-mode';
+  private client: PluginContext["client"];
+  private service: string = "opencode-cline-mode";
 
-  constructor(client: PluginContext['client']) {
+  constructor(client: PluginContext["client"]) {
     this.client = client;
   }
 
   async info(message: string, extra?: Record<string, unknown>): Promise<void> {
-    await this.log('info', message, extra);
+    await this.log("info", message, extra);
   }
 
   async warn(message: string, extra?: Record<string, unknown>): Promise<void> {
-    await this.log('warn', message, extra);
+    await this.log("warn", message, extra);
   }
 
   async error(message: string, extra?: Record<string, unknown>): Promise<void> {
-    await this.log('error', message, extra);
+    await this.log("error", message, extra);
   }
 
   async debug(message: string, extra?: Record<string, unknown>): Promise<void> {
-    await this.log('debug', message, extra);
+    await this.log("debug", message, extra);
   }
 
   private async log(
-    level: LogBody['level'],
+    level: LogBody["level"],
     message: string,
-    extra?: Record<string, unknown>
+    extra?: Record<string, unknown>,
   ): Promise<void> {
     try {
       await this.client.app.log({

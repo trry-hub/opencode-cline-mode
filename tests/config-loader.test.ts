@@ -19,7 +19,5 @@ describe('Config Loader', () => {
     expect(defaults.default_agent).toBe('cline-plan');
     expect(defaults.plan_temperature).toBe(0.1);
     expect(defaults.act_temperature).toBe(0.3);
-    expect(defaults.show_completion_toast).toBe(true);
-    expect(defaults.enable_execute_command).toBe(true);
   });
 });

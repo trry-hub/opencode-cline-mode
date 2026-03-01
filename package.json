@@ -1,8 +1,8 @@
 {
   "name": "opencode-cline-mode",
-  "version": "2.0.0",
-  "description": "Cline-style plan and act workflow for OpenCode - dynamically fetches latest prompts from Cline's official repository with smart caching and automatic tool name mapping",
-  "main": "dist/index.js",
+  "version": "3.4.0",
+  "description": "Cline-style plan and act workflow for OpenCode - dynamically fetches latest prompts from Cline's official repository with seamless plan-to-act switching",
+  "module": "index.ts",
   "type": "module",
   "keywords": [
     "opencode",
@@ -35,8 +35,9 @@
     "opencode-ai": ">=1.0.0"
   },
   "files": [
-    "dist/",
-    "prompts/",
+    "index.ts",
+    "src/",
+    "config/",
     "README.md",
     "LICENSE",
     "opencode-cline-mode.schema.json"
@@ -46,13 +47,9 @@
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.55.0",
-    "@typescript-eslint/parser": "^8.55.0",
     "ajv": "^8.17.1",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
+    "oxlint": "^0.16.0",
     "prettier": "^3.8.1",
-    "typescript-eslint": "^8.55.0",
     "vitest": "^1.6.1"
   },
   "scripts": {
@@ -60,8 +57,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
+    "lint": "oxlint src",
+    "lint:fix": "oxlint src --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",

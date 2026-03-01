@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "opencode-cline-mode.schema.json",
+  "title": "OpenCode Cline Mode Plugin Configuration",
+  "description": "Configuration schema for the opencode-cline-mode plugin",
+  "type": "object",
+  "properties": {
+    "replace_default_agents": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to replace the default agents with cline-plan and cline-act agents"
+    },
+    "default_agent": {
+      "type": "string",
+      "enum": ["cline-plan", "cline-act"],
+      "default": "cline-plan",
+      "description": "The default agent to use when starting a new session"
+    },
+    "plan_model": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "The model ID to use for the planning agent (e.g., 'claude-3-5-sonnet-20241022')"
+    },
+    "act_model": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "The model ID to use for the acting agent (e.g., 'claude-3-5-sonnet-20241022')"
+    },
+    "plan_temperature": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.1,
+      "description": "Temperature setting for the planning agent (0-1, lower = more focused)"
+    },
+    "act_temperature": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.3,
+      "description": "Temperature setting for the acting agent (0-1, lower = more focused)"
+    }
+  },
+  "additionalProperties": false
+}

@@ -2,14 +2,24 @@
  * Mock utilities for testing
  */
 
-import type { PluginContext, LogBody, EventBody } from '../src/types.js';
+import type { PluginContext, LogBody, EventBody } from "../../src/types.js";
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
+
+let tempDirs: string[] = [];
 
 /**
  * Create a mock PluginContext for testing
  */
-export function createMockPluginContext(overrides?: Partial<PluginContext>): PluginContext {
+export function createMockPluginContext(
+  overrides?: Partial<PluginContext>,
+): PluginContext {
   const logs: LogBody[] = [];
   const events: EventBody[] = [];
+
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cline-plugin-test-"));
+  tempDirs.push(tempDir);
 
   return {
     client: {
@@ -23,9 +33,9 @@ export function createMockPluginContext(overrides?: Partial<PluginContext>): Plu
       },
     },
     project: {
-      name: 'test-project',
+      name: "test-project",
     },
-    directory: '/test/directory',
+    directory: tempDir,
     worktree: undefined,
     $: {},
     ...overrides,
@@ -36,14 +46,31 @@ export function createMockPluginContext(overrides?: Partial<PluginContext>): Plu
  * Get captured logs from mock context
  */
 export function getMockLogs(context: PluginContext): LogBody[] {
-  // This is a hack for testing - in real usage logs are private
-  return (context.client.app.log as unknown as { __logs?: LogBody[] }).__logs || [];
+  return (
+    (context.client.app.log as unknown as { __logs?: LogBody[] }).__logs || []
+  );
 }
 
 /**
  * Get captured events from mock context
  */
 export function getMockEvents(context: PluginContext): EventBody[] {
-  // This is a hack for testing - in real usage events are private
-  return (context.client.app.event as unknown as { __events?: EventBody[] }).__events || [];
+  return (
+    (context.client.app.event as unknown as { __events?: EventBody[] })
+      .__events || []
+  );
+}
+
+/**
+ * Cleanup all temp directories (call in afterEach)
+ */
+export function cleanupTempDirs(): void {
+  for (const dir of tempDirs) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+    } catch {
+      // ignore cleanup errors
+    }
+  }
+  tempDirs = [];
 }

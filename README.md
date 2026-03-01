@@ -1,41 +1,36 @@
 # opencode-cline-mode
 
-> Cline-style plan and act workflow for OpenCode
+> Cline-style plan and act workflow for OpenCode - **Now with official Cline prompts!**
 
 [![npm version](https://img.shields.io/npm/v/opencode-cline-mode.svg)](https://www.npmjs.com/package/opencode-cline-mode)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A plugin for [OpenCode](https://opencode.ai) that brings Cline-style structured workflow to your AI coding sessions. Separate planning from execution for more controlled and predictable development.
+A plugin for [OpenCode](https://opencode.ai) that brings **authentic Cline experience** to your AI coding sessions by dynamically fetching prompts from the official Cline repository. Separate planning from execution for more controlled and predictable development.
 
 ## ✨ Features
 
-- 🎯 **Plan Mode** - Analyze and create detailed implementation plans without making changes (pure read-only)
+- 🎯 **Official Cline Prompts** - Dynamically fetches the latest prompts from [cline/cline](https://github.com/cline/cline) repository
+- 📦 **Plan Mode** - Analyze and create detailed implementation plans without making changes (pure read-only)
 - ⚡ **Act Mode** - Execute approved plans step by step with progress tracking
-- 🔗 **Automatic Plan Inheritance** - Plans are automatically passed from plan mode to act mode (no copy-paste needed!)
-- 🔄 **Clean Agent List** - Only shows `cline-plan` and `cline-act`, removes default agents
-- 📝 **Structured Output** - Clear, actionable plans with risk assessment and verification steps
-- 🚀 **Quick Execute Command** - Type `/start-act` to quickly switch from plan to act mode
-- 🌐 **Dynamic Cline Integration** - Fetch latest prompts from Cline's official repository (NEW in v2.0!)
-- 💾 **Smart Caching** - Cache prompts locally to reduce network requests (NEW in v2.0!)
-- 🔧 **Flexible Configuration** - Choose between local, GitHub, or auto mode (NEW in v2.0!)
-- 🎨 **Zero Config** - Works out of the box with sensible defaults
+- 🔄 **Automatic Tool Mapping** - Seamlessly converts Cline tool names to OpenCode equivalents
+- 🛡️ **Smart Adaptation** - Removes unsupported features and provides alternatives
+- 🚀 **Zero Config** - Works out of the box with sensible defaults
+- 🔒 **Strict Permission Control** - Plan mode is truly read-only
 
-### 🔒 Permission Control
+### 🆕 What's New in v4.0
 
-**cline-plan** (Read-Only):
-- ✅ Read files
-- ✅ Search codebase
-- ❌ Edit files (denied)
-- ❌ Execute bash commands (denied)
+- **🎯 Official Cline Prompts**: Now uses complete official Cline prompts including system-prompt/index.ts
+- **📝 Improved Plan Accuracy**: Plan mode now follows official Cline planning methodology exactly
+- **🔧 Minimal Overrides**: Removed custom mode intros to let official prompts shine
+- **✅ Better Integration**: Only adds minimal OpenCode-specific notes without overriding official behavior
 
-**cline-act** (Full Access):
-- ✅ Edit files (allowed)
-- ⚠️ Execute bash commands (asks for permission)
-- ✅ All other tools
+### What's New in v3.0
 
-**Note**: When `replace_default_agents: true` (default), OpenCode's default agents (plan, build, etc.) are **completely removed** from the agent list. You will only see `cline-plan` and `cline-act` agents. This ensures a focused Cline-style workflow without any confusion.
-
-This ensures you can safely plan without accidentally modifying code.
+- **Dynamic Prompt Fetching**: Automatically fetches the latest prompts from Cline's official GitHub repository on startup
+- **Tool Name Mapping**: Intelligent conversion of Cline tool names (e.g., `read_file` → `read`)
+- **MCP Removal**: Automatically removes MCP-related content not supported by OpenCode
+- **Alternative Suggestions**: Provides OpenCode alternatives for unsupported Cline features
+- **Startup Validation**: Ensures prompts are fetched successfully before plugin initialization
 
 ## 📦 Installation
 
@@ -45,7 +40,7 @@ This ensures you can safely plan without accidentally modifying code.
 npm install -g opencode-cline-mode
 ```
 
-Then add to your OpenCode config:
+Then add to your OpenCode config (`~/.config/opencode/opencode.json`):
 
 ```json
 {
@@ -59,26 +54,13 @@ Clone this repository and symlink to your OpenCode plugins directory:
 
 ```bash
 git clone https://github.com/trry-hub/opencode-cline-mode.git
-ln -s $(pwd)/opencode-cline-mode ~/.config/opencode/plugins/opencode-cline-mode
+cd opencode-cline-mode
+npm install
+npm run build
+ln -s $(pwd) ~/.config/opencode/plugins/opencode-cline-mode
 ```
 
-**Important**: When using local installation via symlink, **do NOT** add `"opencode-cline-mode"` to the `plugin` array in `opencode.json`. OpenCode automatically loads plugins from the `~/.config/opencode/plugins/` directory.
-
-❌ **Wrong** (will cause installation error):
-```json
-{
-  "plugin": ["opencode-cline-mode"]
-}
-```
-
-✅ **Correct** (no plugin array entry needed):
-```json
-{
-  "plugin": []
-}
-```
-
-The plugin will be loaded automatically from the symlink.
+**Important**: When using local installation via symlink, **do NOT** add `"opencode-cline-mode"` to the `plugin` array.
 
 ## 🚀 Usage
 
@@ -95,6 +77,7 @@ opencode --agent cline-plan
 Or switch to it in TUI by pressing `Tab` and selecting `cline-plan`.
 
 In plan mode, the AI will:
+
 - ✅ Analyze your codebase
 - ✅ Create detailed step-by-step plans
 - ✅ Assess risks and suggest alternatives
@@ -112,49 +95,23 @@ opencode --agent cline-act
 Or switch to it in TUI by pressing `Tab` and selecting `cline-act`.
 
 In act mode, the AI will:
+
 - ✅ Execute plans step by step
 - ✅ Make code changes as specified
 - ✅ Run verification commands
 - ✅ Report progress after each step
-- ⚠️ Stop and ask for guidance on errors
-
-### Switching Between Agents
-
-In the OpenCode TUI:
-1. Press `Tab` to see available agents
-2. You will **only** see:
-   - `cline-plan` - Planning mode
-   - `cline-act` - Execution mode
-3. Select the agent you want to use
-4. **New in v1.2.0**: When switching from `cline-plan` to `cline-act`, your plan is **automatically inherited** - no need to copy and paste!
-
-### Plan Approval Workflow
-
-Plans are reviewed through conversation with the AI:
-
-1. Create a plan using `cline-plan` agent
-2. Review the plan and discuss modifications if needed
-3. When satisfied, ask the AI to switch to ACT MODE
-4. Switch to `cline-act` agent to execute the plan
-
-The `/start-act` command provides a quick way to switch from planning to execution mode.
 
 ### Typical Workflow
 
 1. **Start with Planning** (`cline-plan`):
    - Describe what you want to build
    - Review the detailed plan created by the AI
-   - Approve or request modifications
+   - Ask for modifications if needed
 
 2. **Switch to Execution** (`cline-act`):
    - Press `Tab` and select `cline-act`
-   - The plan is automatically passed to the execution agent
-   - Watch as the AI implements the plan step by step
-   - Approve each change or provide feedback
-
-**Note**: This plugin **completely replaces** OpenCode's default agents (plan, build, etc.) to provide a focused Cline-style workflow. The default agents are removed from the agent list, ensuring only `cline-plan` and `cline-act` are available. If you want to use default agents alongside Cline agents, see [Configuration](#configuration) below.
-
----
+   - The AI implements the plan step by step
+   - Watch as changes are made to your codebase
 
 ## ⚙️ Configuration
 
@@ -167,176 +124,86 @@ Create `~/.config/opencode/opencode-cline-mode.json` or `.opencode/opencode-clin
   "replace_default_agents": true,
   "default_agent": "cline-plan",
   "plan_model": null,
-  "act_model": null
+  "act_model": null,
+  "plan_temperature": 0.1,
+  "act_temperature": 0.3,
+  "enable_execute_command": true
 }
 ```
 
 #### Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `replace_default_agents` | boolean | `true` | If `true`, removes OpenCode's default agents. If `false`, adds Cline agents alongside defaults. |
-| `default_agent` | string | `"cline-plan"` | Which agent to use by default (`"cline-plan"` or `"cline-act"`) |
-| `plan_model` | string | `null` | Model for cline-plan agent. If `null`, uses default model from `opencode.json` |
-| `act_model` | string | `null` | Model for cline-act agent. If `null`, uses default model from `opencode.json` |
-| `plan_temperature` | number | `0.1` | Temperature for plan mode (lower = more focused, 0-1) |
-| `act_temperature` | number | `0.3` | Temperature for act mode (0-1) |
-| `show_completion_toast` | boolean | `true` | Show toast notification when plan is complete |
-| `enable_execute_command` | boolean | `true` | Enable `/start-act` command for quick switching from plan to act mode |
-| `prompt_source` | string | `"auto"` | Prompt source: `"local"` (use local files), `"github"` (fetch from Cline repo), `"auto"` (cache → github → local) |
-| `cline_version` | string | `"latest"` | Cline version to use: `"latest"` or specific version/branch (e.g., `"main"`, `"v1.2.3"`) |
-| `cache_ttl` | number | `24` | Cache time-to-live in hours |
-| `fallback_to_local` | boolean | `true` | Fallback to local prompts if GitHub fetch fails |
+| Option                   | Type    | Default        | Description                                  |
+| ------------------------ | ------- | -------------- | -------------------------------------------- |
+| `replace_default_agents` | boolean | `true`         | If `true`, removes OpenCode's default agents |
+| `default_agent`          | string  | `"cline-plan"` | Which agent to use by default                |
+| `plan_model`             | string  | `null`         | Model for cline-plan agent                   |
+| `act_model`              | string  | `null`         | Model for cline-act agent                    |
+| `plan_temperature`       | number  | `0.1`          | Temperature for plan mode (0-1)              |
+| `act_temperature`        | number  | `0.3`          | Temperature for act mode (0-1)               |
+| `enable_execute_command` | boolean | `true`         | Enable `/start-act` command                  |
+| `show_completion_toast`  | boolean | `true`         | Show toast notification when plan completes  |
 
-#### Example: Keep Default Agents
+## 🔧 How It Works
 
-If you want to use Cline agents **alongside** OpenCode's default agents:
+### Startup Process
 
-```json
-{
-  "replace_default_agents": false
-}
+1. **Fetch Prompts**: On plugin initialization, fetches the latest prompt files from `cline/cline` repository
+2. **Adapt Content**: Extracts prompt content from TypeScript files and adapts them for OpenCode
+3. **Map Tools**: Converts Cline tool names to OpenCode equivalents using `config/tool-mapping.json`
+4. **Remove Unsupported**: Removes MCP and other unsupported features
+5. **Build Agents**: Creates `cline-plan` and `cline-act` agents with adapted prompts
+
+### Tool Mapping
+
+The plugin automatically maps Cline tool names to OpenCode equivalents:
+
+| Cline Tool        | OpenCode Tool |
+| ----------------- | ------------- |
+| `read_file`       | `read`        |
+| `write_to_file`   | `write`       |
+| `list_files`      | `glob`        |
+| `search_files`    | `grep`        |
+| `replace_in_file` | `edit`        |
+| `execute_command` | `bash`        |
+
+### Unsupported Features
+
+Some Cline features are not available in OpenCode. The plugin provides alternatives:
+
+| Cline Feature           | Alternative                                 |
+| ----------------------- | ------------------------------------------- |
+| `browser_action`        | Use `remote-browser` or `browser-use` skill |
+| `ask_followup_question` | AI asks directly in response                |
+
+## 🛡️ Error Handling
+
+If the plugin cannot fetch prompts from GitHub (network issues, rate limits, etc.), it will:
+
+1. Display a clear error message with the specific issue
+2. Provide troubleshooting steps
+3. **Fail to start** - ensuring you're aware of the problem
+
+This strict approach ensures you always use the latest official Cline prompts.
+
+## 📖 Example Error Message
+
 ```
-
-Then you'll see all agents when pressing `Tab`:
-- `cline-plan`
-- `cline-act`
-- `plan` (OpenCode default)
-- `build` (OpenCode default)
-- etc.
-
-#### Example: Use Different Models
-
-```json
-{
-  "replace_default_agents": true,
-  "plan_model": "anthropic/claude-opus-4",
-  "act_model": "anthropic/claude-sonnet-4"
-}
+╔═══════════════════════════════════════════════════════════════╗
+║  Cline Mode Plugin - Failed to Fetch Prompts                  ║
+╠═══════════════════════════════════════════════════════════════╣
+║  The plugin could not fetch prompts from Cline's official     ║
+║  GitHub repository.                                           ║
+║                                                               ║
+║  Error: Network timeout                                       ║
+║                                                               ║
+║  Solutions:                                                   ║
+║  1. Check your internet connection                            ║
+║  2. Try again in a few minutes                                ║
+║  3. If rate limited, wait until the reset time                ║
+║  4. Check GitHub's status: https://status.github.com          ║
+╚═══════════════════════════════════════════════════════════════╝
 ```
-
-#### Example: Use Latest Cline Prompts from GitHub
-
-```json
-{
-  "prompt_source": "github",
-  "cline_version": "latest",
-  "cache_ttl": 24,
-  "fallback_to_local": true
-}
-```
-
-This will:
-- Fetch the latest prompts from Cline's GitHub repository
-- Cache them for 24 hours
-- Automatically fall back to local prompts if GitHub is unavailable
-
-#### Example: Use Specific Cline Version
-
-```json
-{
-  "prompt_source": "github",
-  "cline_version": "main",
-  "cache_ttl": 168
-}
-```
-
-This will use prompts from Cline's `main` branch and cache for 7 days (168 hours).
-
-#### Example: Always Use Local Prompts
-
-```json
-{
-  "prompt_source": "local"
-}
-```
-
-This disables GitHub fetching and always uses the local prompt files.
-
-### 🌐 Prompt Source Modes
-
-The plugin supports three prompt source modes:
-
-1. **`local`** - Always use local prompt files (fastest, no network required)
-2. **`github`** - Always fetch from Cline's GitHub repository (always up-to-date)
-3. **`auto`** (default) - Smart mode: cache → github → local
-   - First checks cache
-   - If cache expired, fetches from GitHub
-   - If GitHub fails, falls back to local
-
-**Recommendation**: Use `auto` mode for the best balance of performance and freshness.
-
-### 🚀 Quick Execute Command
-
-After planning is complete, you'll see a prompt with options:
-
-**📋 Plan Complete!**
-
-✅ **Quick Execute**: Use `/start-act` **tool** to switch to `cline-act`
-✏️ **Modify**: Tell me which step to change
-❌ **Cancel**: Type "cancel" to abort
-
-**Important**: Use the `/start-act` **tool** (not a command) by:
-- Typing `/start-act` in chat
-- The tool is automatically available in the project's `.opencode/tools/` directory
-
-#### Example: Disable Quick Command
-
-If you prefer not to have the `/start-act` command:
-
-```json
-{
-  "enable_execute_command": false
-}
-```
-
-## 📖 Example Workflow
-
-```bash
-# 1. Start with planning (default mode)
-opencode
-
-# Describe your feature:
-# "Add soft delete functionality to the notes system"
-
-# AI creates a detailed plan with:
-# - Impact scope (files to modify/create)
-# - Step-by-step implementation
-# - Risk assessment
-# - Verification steps
-
-# 2. Review the plan, ask questions, iterate
-# "Can you also add a trash view to show deleted notes?"
-
-# 3. Once satisfied, switch to act mode
-# Press Tab, select cline-act
-
-# 4. Execute the plan
-# AI executes step by step:
-# ✅ Step 1/8: Update Note Model
-# ✅ Step 2/8: Create Database Migration
-# ✅ Step 3/8: Modify Delete API
-# ...
-```
-
-## 🎨 Plan Mode Output Format
-
-Plans include:
-
-- **📊 Overview** - What will be done and why
-- **📁 Impact Scope** - Files modified/created/deleted
-- **📝 Detailed Plan** - Step-by-step implementation
-- **⚠️ Risk Warnings** - Potential issues and mitigation
-- **🔄 Alternative Approaches** - Different implementation options
-
-## ⚡ Act Mode Execution
-
-Execution includes:
-
-- **Progress Tracking** - Clear indication of current step
-- **Verification** - Automatic verification after each step
-- **Error Handling** - Stops on errors with suggested solutions
-- **Rollback Support** - Can undo changes if needed
 
 ## 🔧 Development
 
@@ -344,6 +211,7 @@ Execution includes:
 
 - Node.js >= 18.0.0
 - npm >= 9.0.0
+- Internet connection (for fetching prompts)
 
 ### Setup
 
@@ -363,8 +231,9 @@ npm run build
 
 ```bash
 npm test                 # Run tests
-npm run test:watch       # Watch mode
-npm run test:coverage    # With coverage
+npm run typecheck        # Type checking
+npm run lint             # Linting
+npm run validate         # Full validation
 ```
 
 ### Project Structure
@@ -379,12 +248,15 @@ opencode-cline-mode/
 │   ├── config-loader.ts      # Config loading
 │   ├── path-resolver.ts      # Path resolution
 │   ├── agent-builder.ts      # Agent configuration
-│   └── message-transformer.ts # Message processing
-├── prompts/
-│   ├── plan.md               # Plan mode prompt
-│   └── act.md                # Act mode prompt
+│   ├── prompt-fetcher.ts     # GitHub prompt fetcher
+│   ├── prompt-adapter.ts     # Prompt adaptation
+│   ├── tool-mapper.ts        # Tool name mapping
+│   └── utils/
+│       ├── github-api.ts     # GitHub API client
+│       └── cache.ts          # Prompt caching
+├── config/
+│   └── tool-mapping.json     # Tool mapping configuration
 ├── dist/                     # Compiled output
-├── docs/                     # Documentation
 └── package.json
 ```
 
@@ -392,45 +264,25 @@ opencode-cline-mode/
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## 📄 License
 
 MIT © [trry](https://github.com/trry)
 
 ## 🙏 Acknowledgments
 
-- Inspired by [Cline](https://github.com/cline/cline) workflow
-- Built for [OpenCode](https://opencode.ai)
-- Thanks to the OpenCode community
-
-## 📚 Documentation
-
-For detailed information, please visit:
-- [GitHub Repository](https://github.com/trry-hub/opencode-cline-mode)
-- [Issue Tracker](https://github.com/trry-hub/opencode-cline-mode/issues)
-- [Changelog](CHANGELOG.md)
-- [Troubleshooting Guide](TROUBLESHOOTING.md) - 故障排查指南
-- [npm Package](https://www.npmjs.com/package/opencode-cline-mode)
+- Prompts from [Cline](https://github.com/cline/cline) - The official Cline VS Code extension
+- Built for [OpenCode](https://opencode.ai) - The open source AI coding agent
+- Thanks to the OpenCode and Cline communities
 
 ## 📚 Related Projects
 
+- [Cline](https://github.com/cline/cline) - The original Cline VS Code extension
 - [OpenCode](https://opencode.ai) - The open source AI coding agent
-- [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) - Advanced OpenCode plugin harness
 - [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode) - Curated list of OpenCode resources
 
 ## 🐛 Issues
 
 Found a bug? Have a feature request? Please [open an issue](https://github.com/trry-hub/opencode-cline-mode/issues).
-
-## 📮 Contact
-
-- GitHub: [@trry](https://github.com/trry)
-- Issues: [GitHub Issues](https://github.com/trry-hub/opencode-cline-mode/issues)
 
 ---
 

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://oxlint.rs/schema.json",
+  "categories": {
+    "correctness": "warn",
+    "perf": "warn",
+    "suspicious": "warn",
+    "style": "off"
+  },
+  "rules": {
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "no-explicit-any": "warn",
+    "no-console": "off"
+  },
+  "ignore": ["dist/**", "node_modules/**", "tests/**", "*.config.js"]
+}

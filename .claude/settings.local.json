@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__web-search-prime__webSearchPrime",
+      "Bash(curl --request POST --url https://integrate.api.nvidia.com/v1/chat/completions --header 'accept: application/json' --header \"authorization: Bearer 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\" --header 'content-type: application/json' --data '{:*)",
+      "mcp__zread__search_doc",
+      "mcp__zread__read_file"
+    ]
+  }
+}
