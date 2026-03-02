@@ -12,9 +12,24 @@ vi.mock("@opencode-ai/plugin", () => {
     }),
     array: () => ({
       optional: () => ({ describe: () => ({}) }),
+      describe: () => ({}),
+    }),
+    boolean: () => ({
+      optional: () => ({ describe: () => ({}) }),
+      describe: () => ({}),
+    }),
+    number: () => ({
+      describe: () => ({}),
+    }),
+    enum: () => ({
+      describe: () => ({}),
     }),
   };
-  const tool = (input: { description: string; args: unknown; execute: unknown }) => input;
+  const tool = (input: {
+    description: string;
+    args: unknown;
+    execute: unknown;
+  }) => input;
   tool.schema = z;
   return { tool };
 });
@@ -147,9 +162,11 @@ describe("Plugin Lifecycle Integration", () => {
     const plugin = await ClineModePlugin(mockContext);
 
     expect(plugin.tool).toBeDefined();
-    expect(plugin.tool?.["cline-approve"]).toBeDefined();
     expect(plugin.tool?.["plan_mode_respond"]).toBeDefined();
     expect(plugin.tool?.["ask_followup_question"]).toBeDefined();
     expect(plugin.tool?.["attempt_completion"]).toBeDefined();
+    expect(plugin.tool?.["init_focus_chain"]).toBeDefined();
+    expect(plugin.tool?.["update_focus_step"]).toBeDefined();
+    expect(plugin.tool?.["get_focus_chain"]).toBeDefined();
   });
 });

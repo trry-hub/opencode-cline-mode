@@ -19,6 +19,10 @@ export class ToolMapper {
     this.mapping = this.loadMapping();
   }
 
+  private escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
   private loadMapping(): ToolMapping {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
@@ -74,10 +78,11 @@ export class ToolMapper {
     for (const [clineTool, openCodeTool] of Object.entries(
       this.mapping.tools,
     )) {
+      const escapedTool = this.escapeRegExp(clineTool);
       const patterns = [
-        new RegExp(`\\b${clineTool}\\b`, "g"),
-        new RegExp(`\`${clineTool}\``, "g"),
-        new RegExp(`\\*\\*${clineTool}\\*\\*`, "g"),
+        new RegExp(`\\b${escapedTool}\\b`, "g"),
+        new RegExp(`\`${escapedTool}\``, "g"),
+        new RegExp(`\\*\\*${escapedTool}\\*\\*`, "g"),
       ];
 
       for (const pattern of patterns) {
@@ -96,10 +101,11 @@ export class ToolMapper {
     for (const unsupportedTool of this.mapping.unsupported) {
       const alternative = this.getAlternative(unsupportedTool);
       if (alternative) {
+        const escapedTool = this.escapeRegExp(unsupportedTool);
         const patterns = [
-          new RegExp(`\\b${unsupportedTool}\\b`, "g"),
-          new RegExp(`\`${unsupportedTool}\``, "g"),
-          new RegExp(`\\*\\*${unsupportedTool}\\*\\*`, "g"),
+          new RegExp(`\\b${escapedTool}\\b`, "g"),
+          new RegExp(`\`${escapedTool}\``, "g"),
+          new RegExp(`\\*\\*${escapedTool}\\*\\*`, "g"),
         ];
 
         for (const pattern of patterns) {

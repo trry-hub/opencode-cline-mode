@@ -10,11 +10,18 @@ export interface AdaptedPrompt {
   mode: "plan" | "act";
 }
 
+export interface AdapterContext {
+  yoloModeEnabled?: boolean;
+  cwd?: string;
+}
+
 export class PromptAdapter {
   private toolMapper: ToolMapper;
+  private context: AdapterContext;
 
-  constructor() {
+  constructor(context?: AdapterContext) {
     this.toolMapper = new ToolMapper();
+    this.context = context || {};
   }
 
   /**
@@ -133,6 +140,10 @@ export class PromptAdapter {
    * Get mode-specific note (minimal, doesn't override official prompts)
    */
   private getModeNote(mode: "plan" | "act"): string {
+    const yoloNote = this.context.yoloModeEnabled
+      ? `\n\n## YOLO Mode Enabled\n\nYou are in YOLO mode! Auto-approvals are enabled and you will automatically switch to ACT MODE after presenting a complete plan.`
+      : "";
+
     if (mode === "plan") {
       return `# OpenCode Integration Note
 
@@ -140,24 +151,35 @@ You are running in OpenCode's cline-plan agent. This is equivalent to Cline's PL
 
 The official Cline prompts below will guide your planning behavior.
 
-## Available Tools in PLAN MODE
+## What is PLAN MODE in OpenCode?
 
-- **plan_mode_respond**: Use this to share your thoughts, analysis, and plans with the user. This is your primary communication tool.
+- In PLAN MODE, you may need to do some information gathering using read-only tools like read, glob, and grep to get more context about the task.
+- You may also ask the user clarifying questions with ask_followup_question to get a better understanding of the task.
+- Once you've gained more context about the user's request, you should architect a detailed plan for how you will accomplish the task. Present the plan to the user using the plan_mode_respond tool.
+- Then you might ask the user if they are pleased with this plan, or if they would like to make any changes. Think of this as a brainstorming session where you can discuss the task and plan the best way to accomplish it.
+- Finally once it seems like you've reached a good plan, ask the user to switch to ACT MODE (cline-act agent) to implement the solution.
+
+## Available Tools
+
+- **plan_mode_respond**: Use this to share your thoughts, analysis, and plans with the user. This is your primary communication tool in PLAN MODE.
+  - Set \`needs_more_exploration: true\` if you need to gather more information before finalizing the plan
+  - Provide \`options\` array to give the user predefined choices
 - **ask_followup_question**: Ask clarifying questions to better understand requirements.
-- **read, glob, grep**: Read-only tools for information gathering.
-- **cline-approve**: Call this tool when you have presented a complete plan and are ready for user approval. This will show a permission dialog for the user to approve or reject.
+- **read, glob, grep**: Read-only tools for information gathering and code exploration.
 
-## Workflow
-1. Gather information using read-only tools
-2. Use plan_mode_respond to share your analysis
-3. Present a detailed step-by-step plan
-4. Use ask_followup_question if you need clarification
-5. **MANDATORY**: When your plan is complete, you MUST call the \`cline-approve\` tool to request user approval. This will show a popup dialog for the user to approve or reject your plan. DO NOT skip this step.
+## Important Restrictions
 
-## Restrictions
-- Do NOT use write, edit, patch, or bash tools
-- Do NOT execute commands or make changes
-- NEVER complete your response without calling \`cline-approve\` after presenting a plan
+- Do NOT use write, edit, patch, or bash tools in PLAN MODE
+- Do NOT execute commands or make changes to files
+- Do NOT use skills in PLAN MODE - skills are only available in ACT MODE
+- Do NOT use subagents in PLAN MODE - subagents are only available in ACT MODE
+- ONLY use read-only tools for exploration and analysis
+
+## Switching to ACT MODE
+
+When you and the user have agreed on a plan, ask the user to switch to the cline-act agent:
+- Press Tab and select cline-act
+- Or run: opencode --agent cline-act${yoloNote}
 
 ---`;
     } else {
@@ -175,11 +197,12 @@ The official Cline prompts below will guide your execution behavior.
 - **attempt_completion**: Present the final result when task is complete
 
 ## Workflow
+
 1. Execute the approved plan step by step
 2. Use file tools and bash to make changes
 3. Report progress after each step
 4. Verify changes work correctly
-5. Use attempt_completion when finished
+5. Use attempt_completion when finished${yoloNote}
 
 ---`;
     }

@@ -6,6 +6,7 @@ import { PromptFetcher } from "./prompt-fetcher.js";
 import { GitHubAPIError } from "./utils/github-api.js";
 import { PromptAdapter } from "./prompt-adapter.js";
 import { getClineTools } from "./tools/index.js";
+import { StateManager } from "./state-manager.js";
 
 export default async function ClineModePlugin(context: PluginContext) {
   const { client, project, directory, worktree } = context;
@@ -22,7 +23,10 @@ export default async function ClineModePlugin(context: PluginContext) {
     });
 
     const fetcher = new PromptFetcher();
-    const adapter = new PromptAdapter();
+    const adapter = new PromptAdapter({
+      yoloModeEnabled: pluginConfig.yolo_mode,
+      cwd: directory,
+    });
 
     let prompts;
     try {
@@ -74,6 +78,7 @@ ${error.rateLimitReset ? `║  Rate limit resets at: ${error.rateLimitReset.toLo
     await logger.info("Cline prompts adapted successfully", {
       planPromptLength: planPrompt.systemPrompt.length,
       actPromptLength: actPrompt.systemPrompt.length,
+      yoloModeEnabled: pluginConfig.yolo_mode,
     });
 
     return {
@@ -101,6 +106,7 @@ ${error.rateLimitReset ? `║  Rate limit resets at: ${error.rateLimitReset.toLo
             visibleAgents: Object.keys(clineAgents),
             defaultAgent: config.default_agent,
             promptsFetchedFrom: "GitHub - cline/cline (main branch)",
+            yoloMode: pluginConfig.yolo_mode,
           });
         } else {
           config.agent = {
@@ -113,6 +119,7 @@ ${error.rateLimitReset ? `║  Rate limit resets at: ${error.rateLimitReset.toLo
             {
               allAgents: Object.keys(config.agent),
               promptsFetchedFrom: "GitHub - cline/cline (main branch)",
+              yoloMode: pluginConfig.yolo_mode,
             },
           );
         }
@@ -124,10 +131,20 @@ ${error.rateLimitReset ? `║  Rate limit resets at: ${error.rateLimitReset.toLo
         const { agent, sessionID } = input;
 
         if (agent === "cline-plan" || agent === "cline-act") {
+          const stateManager = sessionID
+            ? StateManager.getInstance(sessionID)
+            : null;
+
+          if (stateManager) {
+            stateManager.setYoloMode(pluginConfig.yolo_mode);
+            stateManager.switchMode(agent === "cline-plan" ? "plan" : "act");
+          }
+
           await logger.info(`${agent} agent activated`, {
             sessionID,
             agent,
             promptsSource: "Official Cline repository (GitHub)",
+            yoloMode: pluginConfig.yolo_mode,
           });
         }
       },

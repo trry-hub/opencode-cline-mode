@@ -1,6 +1,6 @@
 {
   "name": "opencode-cline-mode",
-  "version": "3.4.0",
+  "version": "5.0.0",
   "description": "Cline-style plan and act workflow for OpenCode - dynamically fetches latest prompts from Cline's official repository with seamless plan-to-act switching",
   "module": "index.ts",
   "type": "module",

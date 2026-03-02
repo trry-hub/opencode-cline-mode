@@ -5,6 +5,31 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 并且本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [5.0.1] - 2026-03-02
+
+### 🐛 修复 (Fixed)
+
+- **修复 plan_mode_respond 工具参数验证错误** - 添加了 response 参数的类型和空值检查，防止 `text9.split is not a function` 错误
+- **更新测试用例** - 移除了已废弃的 `cline-approve` 工具测试，添加了新的 focus chain 工具测试
+
+### 技术细节
+
+**修改的文件**:
+- `src/tools/index.ts`: 在 `planModeRespondTool` 的 execute 函数中添加参数验证
+- `tests/integration/plugin-lifecycle.test.ts`: 更新工具注册测试用例
+
+**修复内容**:
+```typescript
+// 添加参数验证
+if (!response || typeof response !== 'string') {
+  return "❌ Error: Invalid response parameter. Response must be a non-empty string.";
+}
+```
+
+这个修复确保了当 `plan_mode_respond` 工具被调用时，response 参数必须是一个非空字符串，避免了在后续处理中出现 undefined 导致的错误。
+
+---
+
 ## [5.0.0] - 2026-02-28
 
 ### 🎉 重大更新 (Major Changes)

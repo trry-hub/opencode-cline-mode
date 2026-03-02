@@ -45,6 +45,31 @@ export function validateConfig(config: unknown): ValidationResult {
     }
   }
 
+  if ("yolo_mode" in cfg && typeof cfg.yolo_mode !== "boolean") {
+    errors.push("yolo_mode must be a boolean");
+  }
+
+  if (
+    "enable_task_progress" in cfg &&
+    typeof cfg.enable_task_progress !== "boolean"
+  ) {
+    errors.push("enable_task_progress must be a boolean");
+  }
+
+  if (
+    "enable_execute_command" in cfg &&
+    typeof cfg.enable_execute_command !== "boolean"
+  ) {
+    errors.push("enable_execute_command must be a boolean");
+  }
+
+  if (
+    "show_completion_toast" in cfg &&
+    typeof cfg.show_completion_toast !== "boolean"
+  ) {
+    errors.push("show_completion_toast must be a boolean");
+  }
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -59,6 +84,10 @@ export function getDefaultConfig(): Required<PluginConfig> {
     act_model: "",
     plan_temperature: 0.1,
     act_temperature: 0.3,
+    yolo_mode: false,
+    enable_task_progress: false,
+    enable_execute_command: true,
+    show_completion_toast: true,
   };
 }
 
@@ -78,5 +107,12 @@ export function mergeWithDefaults(
     act_model: userConfig.act_model ?? defaults.act_model,
     plan_temperature: userConfig.plan_temperature ?? defaults.plan_temperature,
     act_temperature: userConfig.act_temperature ?? defaults.act_temperature,
+    yolo_mode: userConfig.yolo_mode ?? defaults.yolo_mode,
+    enable_task_progress:
+      userConfig.enable_task_progress ?? defaults.enable_task_progress,
+    enable_execute_command:
+      userConfig.enable_execute_command ?? defaults.enable_execute_command,
+    show_completion_toast:
+      userConfig.show_completion_toast ?? defaults.show_completion_toast,
   };
 }

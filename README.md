@@ -17,12 +17,22 @@ A plugin for [OpenCode](https://opencode.ai) that brings **authentic Cline exper
 - 🚀 **Zero Config** - Works out of the box with sensible defaults
 - 🔒 **Strict Permission Control** - Plan mode is truly read-only
 
-### 🆕 What's New in v4.0
+### What's New in v5.0
 
-- **🎯 Official Cline Prompts**: Now uses complete official Cline prompts including system-prompt/index.ts
-- **📝 Improved Plan Accuracy**: Plan mode now follows official Cline planning methodology exactly
-- **🔧 Minimal Overrides**: Removed custom mode intros to let official prompts shine
-- **✅ Better Integration**: Only adds minimal OpenCode-specific notes without overriding official behavior
+- **🎯 Full Official Prompts**: Now includes `system-prompt/index.ts` for complete official Cline prompt structure
+- **📝 Improved Plan Accuracy**: Removed custom mode intros to let official Cline planning methodology work exactly as intended
+- **🔧 Minimal Overrides**: Only adds OpenCode integration notes without overriding official prompt logic
+- **✅ Native Experience**: Plan mode now matches native Cline behavior exactly
+- **🎯 YOLO Mode**: Auto-approve plans and automatically switch to ACT MODE
+- **📝 Enhanced Plan Mode**: Added `needs_more_exploration` parameter for iterative planning
+- **🔧 Better Tool Mapping**: Fixed ask_followup_question mapping and improved tool organization
+- **📊 State Management**: Session-based state tracking for better workflow control
+
+### What's New in v4.0
+
+- **🔄 Simplified Workflow**: Removed plan approval mechanism - switch directly from plan to act mode
+- **📋 Native Cline Behavior**: No longer requires `/approve-plan` - just switch agents
+- **🧹 Code Cleanup**: Removed unused plan status management
 
 ### What's New in v3.0
 
@@ -127,22 +137,26 @@ Create `~/.config/opencode/opencode-cline-mode.json` or `.opencode/opencode-clin
   "act_model": null,
   "plan_temperature": 0.1,
   "act_temperature": 0.3,
-  "enable_execute_command": true
+  "enable_execute_command": true,
+  "yolo_mode": false,
+  "enable_task_progress": false
 }
 ```
 
 #### Configuration Options
 
-| Option                   | Type    | Default        | Description                                  |
-| ------------------------ | ------- | -------------- | -------------------------------------------- |
-| `replace_default_agents` | boolean | `true`         | If `true`, removes OpenCode's default agents |
-| `default_agent`          | string  | `"cline-plan"` | Which agent to use by default                |
-| `plan_model`             | string  | `null`         | Model for cline-plan agent                   |
-| `act_model`              | string  | `null`         | Model for cline-act agent                    |
-| `plan_temperature`       | number  | `0.1`          | Temperature for plan mode (0-1)              |
-| `act_temperature`        | number  | `0.3`          | Temperature for act mode (0-1)               |
-| `enable_execute_command` | boolean | `true`         | Enable `/start-act` command                  |
-| `show_completion_toast`  | boolean | `true`         | Show toast notification when plan completes  |
+| Option                   | Type    | Default        | Description                                                 |
+| ------------------------ | ------- | -------------- | ----------------------------------------------------------- |
+| `replace_default_agents` | boolean | `true`         | If `true`, removes OpenCode's default agents                |
+| `default_agent`          | string  | `"cline-plan"` | Which agent to use by default                               |
+| `plan_model`             | string  | `null`         | Model for cline-plan agent                                  |
+| `act_model`              | string  | `null`         | Model for cline-act agent                                   |
+| `plan_temperature`       | number  | `0.1`          | Temperature for plan mode (0-1)                             |
+| `act_temperature`        | number  | `0.3`          | Temperature for act mode (0-1)                              |
+| `enable_execute_command` | boolean | `true`         | Enable `/start-act` command                                 |
+| `show_completion_toast`  | boolean | `true`         | Show toast notification when plan completes                 |
+| `yolo_mode`              | boolean | `false`        | Enable YOLO mode (auto-approve and auto-switch to act mode) |
+| `enable_task_progress`   | boolean | `false`        | Enable task progress tracking                               |
 
 ## 🔧 How It Works
 
@@ -158,23 +172,25 @@ Create `~/.config/opencode/opencode-cline-mode.json` or `.opencode/opencode-clin
 
 The plugin automatically maps Cline tool names to OpenCode equivalents:
 
-| Cline Tool        | OpenCode Tool |
-| ----------------- | ------------- |
-| `read_file`       | `read`        |
-| `write_to_file`   | `write`       |
-| `list_files`      | `glob`        |
-| `search_files`    | `grep`        |
-| `replace_in_file` | `edit`        |
-| `execute_command` | `bash`        |
+| Cline Tool              | OpenCode Tool |
+| ----------------------- | ------------- |
+| `read_file`             | `read`        |
+| `write_to_file`         | `write`       |
+| `list_files`            | `glob`        |
+| `search_files`          | `grep`        |
+| `list_code_definitions` | `grep`        |
+| `replace_in_file`       | `edit`        |
+| `execute_command`       | `bash`        |
 
 ### Unsupported Features
 
 Some Cline features are not available in OpenCode. The plugin provides alternatives:
 
-| Cline Feature           | Alternative                                 |
-| ----------------------- | ------------------------------------------- |
-| `browser_action`        | Use `remote-browser` or `browser-use` skill |
-| `ask_followup_question` | AI asks directly in response                |
+| Cline Feature    | Alternative                                 |
+| ---------------- | ------------------------------------------- |
+| `browser_action` | Use `remote-browser` or `browser-use` skill |
+
+**Note**: `ask_followup_question` and `plan_mode_respond` are natively supported as custom tools.
 
 ## 🛡️ Error Handling
 
